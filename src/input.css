@@ -19,3 +19,6 @@ margin: 0 auto;
 .adidas_1:hover{
 content: url("/img/adidas1_1.webp");
 }
+.nike_1:hover{
+    content: url("/img/nike1_1.webp");
+    }
