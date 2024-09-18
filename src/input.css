@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+.container{
+margin: 0 auto;
+
+}
+
+.carousel {
+    
+}
+
+.adidas_1:hover{
+content: url("/img/adidas1_1.webp");
+}
