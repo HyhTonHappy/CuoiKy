@@ -3,22 +3,20 @@
 @tailwind utilities;
 
 * {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
 }
-.container{
-margin: 0 auto;
-
+.container {
+  padding: 0 50px;
 }
 
 .carousel {
-    
 }
 
-.adidas_1:hover{
-content: url("/img/adidas1_1.webp");
+.adidas_1:hover {
+  content: url("/img/adidas1_1.webp");
 }
-.nike_1:hover{
-    content: url("/img/nike1_1.webp");
-    }
+.nike_1:hover {
+  content: url("/img/nike1_1.webp");
+}

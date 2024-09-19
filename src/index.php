@@ -32,51 +32,50 @@ $products = [
 </head>
 
 <body>
-    <header>
-        <nav class="dark:bg-gray-900 w-full z-20 top-0 start-0 bg-red-400">
-            <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-                <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
-                    <span class="self-center text-4xl font-semibold whitespace-nowrap text-white">Bán hàng</span>
-                </a>
+<header>
+    <nav id="header" class="dark:bg-gray-900 w-full z-50 top-0 left-0 bg-red-400 fixed transition-all duration-500">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
+                <span class="self-center text-4xl font-semibold whitespace-nowrap text-white">Bán hàng</span>
+            </a>
 
-                <div class="flex md:order-2 space-x-3 rtl:space-x-reverse justify-between items-center">
-                    <button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng nhập</button>
-                    <button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng ký</button>
-                </div>
-
-                <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
-                    <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
-                        <li><a href="#" class="block py-2 px-3 text-white rounded md:bg-transparent md:text-white md:p-0 md:dark:text-white hover:text-red-100" aria-current="Home">Trang chủ</a></li>
-                        <li><a href="#" class="block py-2 px-3 text-white rounded md:hover:bg-transparent md:hover:text-red-100 md:p-0 dark:text-white dark:hover:text-white md:dark:hover:bg-transparent">Chính sách</a></li>
-                        <li><a href="#" class="block py-2 px-3 text-white rounded md:hover:bg-transparent md:p-0 dark:text-white dark:hover:text-white md:dark:hover:bg-transparent">Đối tác</a></li>
-                        <li><a href="#" class="block py-2 px-3 text-white rounded md:hover:bg-transparent md:p-0 dark:text-white dark:hover:text-white md:dark:hover:bg-transparent">Hàng mới về</a></li>
-                    </ul>
-                </div>
-
-                <div class="flex md:hidden ml-right">
-                    <button id="menu-toggle" type="button" class="text-white focus:outline-none">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-                        </svg>
-                    </button>
-                </div>
+            <div class="flex md:order-2 space-x-3 rtl:space-x-reverse justify-between items-center">
+                <button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng nhập</button>
+                <button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng ký</button>
             </div>
 
-            <!-- Menu di động -->
-            <div class="md:hidden hidden" id="mobile-menu">
-                <ul class="flex flex-col p-4 space-y-2">
-                    <li><a href="#" class="block py-2 px-3 text-white rounded hover:bg-gray-700">Trang chủ</a></li>
-                    <li><a href="#" class="block py-2 px-3 text-white rounded hover:bg-gray-700">Hàng mới nhất</a></li>
-                    <li><a href="#" class="block py-2 px-3 text-white rounded hover:bg-gray-700">Đồ nam</a></li>
-                    <li><a href="#" class="block py-2 px-3 text-white rounded hover:bg-gray-700">Đồ nữ</a></li>
-                    <li><a href="#" class="block py-2 px-3 text-white rounded hover:bg-gray-700">Đồ trẻ em</a></li>
+            <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
+                <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
+                    <li><a href="#" class="block py-2 px-3 text-white rounded md:bg-transparent md:text-white md:p-0 md:dark:text-white hover:text-red-100" aria-current="Home">Trang chủ</a></li>
+                    <li><a href="#" class="block py-2 px-3 text-white rounded md:hover:bg-transparent md:hover:text-red-100 md:p-0 dark:text-white dark:hover:text-white md:dark:hover:bg-transparent">Chính sách</a></li>
+                    <li><a href="#" class="block py-2 px-3 text-white rounded md:hover:bg-transparent md:p-0 dark:text-white dark:hover:text-white md:dark:hover:bg-transparent">Đối tác</a></li>
+                    <li><a href="#" class="block py-2 px-3 text-white rounded md:hover:bg-transparent md:p-0 dark:text-white dark:hover:text-white md:dark:hover:bg-transparent">Hàng mới về</a></li>
                 </ul>
             </div>
-        </nav>
-    </header>
 
+            <div class="flex md:hidden ml-right">
+                <button id="menu-toggle" type="button" class="text-white focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu di động -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <ul class="flex flex-col p-4 space-y-2
+ <li><a href="#" class="block py-2 px-3 text-white rounded hover:bg-gray-700">Trang chủ</a></li>
+                <li><a href="#" class="block py-2 px-3 text-white rounded hover:bg-gray-700">Hàng mới nhất</a></li>
+                <li><a href="#" class="block py-2 px-3 text-white rounded hover:bg-gray-700">Đồ nam</a></li>
+                <li><a href="#" class="block py-2 px-3 text-white rounded hover:bg-gray-700">Đồ nữ</a></li>
+                <li><a href="#" class="block py-2 px-3 text-white rounded hover:bg-gray-700">Đồ trẻ em</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
     <main>
-        <section class="carousel">
+        <section class="carousel pt-15">
             <div id="default-carousel" class="relative w-full" data-carousel="slide">
                 <div class="relative h-[300px] md:h-[800px] w-full overflow-hidden rounded-lg">
                     <!-- Item 1 -->
@@ -121,7 +120,7 @@ $products = [
         </section>
 
         <section class="list mt-10">
-            <div class="container">
+            <div class="container px-20">
 
             <div class="title text-center text-xl font-bold text-red-400 mb-4 md:text-4xl">
     <p>Hãy mua hàng nào!</p>
@@ -670,6 +669,49 @@ $products = [
             });
         });
     </script>
+
+<script>
+    window.onscroll = function() {
+        const header = document.getElementById("header");
+        const buttons = header.querySelectorAll("button");
+
+        // Khi cuộn xuống 50px, đổi màu nền và màu chữ
+        if (window.scrollY > 50) {
+            // Nền header màu trắng với opacity 52%
+            header.style.backgroundColor = "rgba(255, 255, 255, 0.52)";
+            
+            // Đổi màu chữ các link trong header
+            header.querySelectorAll("a").forEach((el) => {
+                el.classList.add("text-red-400");
+                el.classList.remove("text-white");
+            });
+
+            // Đổi màu các nút
+            buttons.forEach((btn) => {
+                btn.classList.remove("text-red-400", "bg-white", "hover:bg-red-400", "hover:text-white");
+                btn.classList.add("text-white", "bg-red-400", "hover:bg-white", "hover:text-red-400");
+            });
+        } else {
+            // Khi cuộn lên lại thì đổi về màu mặc định bg-red-400
+            header.classList.add("bg-red-400");
+            header.style.backgroundColor = "";  // Remove inline style
+
+            // Đổi lại màu chữ
+            header.querySelectorAll("a").forEach((el) => {
+                el.classList.remove("text-red-400");
+                el.classList.add("text-white");
+            });
+
+            // Đổi lại màu các nút
+            buttons.forEach((btn) => {
+                btn.classList.add("text-red-400", "bg-white", "hover:bg-red-400", "hover:text-white");
+                btn.classList.remove("text-white", "bg-red-400", "hover:bg-white", "hover:text-red-400");
+            });
+        }
+    };
+</script>
+
+
 </body>
 
 </html>
