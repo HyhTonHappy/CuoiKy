@@ -7,8 +7,26 @@
   margin: 0;
   box-sizing: border-box;
 }
+
+/* Đảm bảo thanh header có chiều cao cố định */
+nav#header {
+  height: 70px; /* Chiều cao cố định của header */
+  position: fixed; /* Đảm bảo thanh header cố định khi cuộn trang */
+  top: 0; /* Đặt ở trên cùng */
+  left: 0;
+  right: 0;
+  
+    z-index: 1000; /* Đảm bảo header nằm trên cùng */
+}
+
+/* Thêm khoảng cách trên cho phần nội dung chính */
+main {
+  margin-top: 10px; /* Khoảng cách bằng chiều cao của header */
+}
+
+
 .container {
-  padding: 0 50px;
+  margin: 0 auto;
 }
 
 .carousel {
@@ -19,4 +37,74 @@
 }
 .nike_1:hover {
   content: url("/img/nike1_1.webp");
+}
+
+/* Mua ngay */
+.detail_product .content {
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.detail_product  .img {
+  width: 45%; /* Set width to 45% for smaller images */
+}
+
+.detail_product .main-img img {
+  width: 100%; /* Main image full width of its container */
+  height: auto;
+  border-radius: 10px;
+}
+
+.detail_product .grid img {
+  width: 100%; /* Make the smaller images take full width of their container */
+  height: auto;
+  border-radius: 10px;
+}
+
+.detail_product .content_title {
+  width: 45%; /* Set width for content title to 45% */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.detail_product .img_choice {
+  display: flex;
+  gap: 10px; /* Add gap between choice images */
+}
+
+.detail_product .img_1_choice {
+  width: 50px;
+  height: 50px;
+  background-color: #e5e5e5; /* Placeholder background for image choices */
+  border-radius: 5px;
+}
+
+.detail_product .size {
+  margin-top: 20px; /* Add spacing for size section */
+}
+
+.detail_product .size label{
+ 
+}
+
+
+  @media screen and (max-width: 768px){
+    .detail_product .content{
+      align-items: center;
+  }
+  .detail_product .size label{
+    width: 90px;
+  }
+  .detail_product .btn_list{
+    display: flex;
+    flex-direction: column;
+  }
+}
+@media screen and (min-width: 768px) and (max-width: 9999px) {
+  .detail_product .size label{
+    width: 120px;
+  }
 }
