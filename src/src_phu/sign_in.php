@@ -9,9 +9,7 @@
     <title>Sign in</title>
 </head>
 <body>
-    <section>
-        
-
+    
 <section class="bg-gray-50 dark:bg-gray-900">
     <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 grid lg:grid-cols-2 gap-8 lg:gap-16">
         <div class="flex flex-col justify-center">
@@ -54,6 +52,7 @@
             </div>
         </div>
     </div>
+    
 </section>
 
 <footer class="bg-red-200 dark:bg-gray-900 mt-40">
@@ -155,6 +154,34 @@
       </div>
     </div>
 </footer>
+
+
+<?php
+require_once 'connect.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $MaTK = $_POST['MaTK'];
+    $MatKhau = $_POST['MatKhau'];
+
+    // Câu truy vấn SQL để kiểm tra tài khoản và mật khẩu
+    $sql = "SELECT * FROM TaiKhoan WHERE MaTK = ? AND MatKhau = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $MaTK, $MatKhau);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        echo "Đăng nhập thành công!";
+    } else {
+        echo "Sai tên tài khoản hoặc mật khẩu.";
+    }
+    $stmt->close();
+}
+
+$conn->close();
+?>
+
+
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
 
 </body>
