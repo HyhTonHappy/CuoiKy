@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 $host = "localhost";
 $database = "cuoiky";
 $username = "root";
@@ -9,4 +9,4 @@ if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 echo "Connected successfully";
-?>
+?> -->
