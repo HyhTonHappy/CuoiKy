@@ -1,3 +1,84 @@
+<?php
+session_start();
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "cuoiky";
+
+try {
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Kết nối thất bại: " . $e->getMessage());
+}
+
+$error_message = '';
+
+if (isset($_POST['submit'])) {
+    // Nhận dữ liệu từ form
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $repeat_password = $_POST['repeat_password'];
+    $name = $_POST['name'];
+    $phone = $_POST['phone'];
+    $birthday = $_POST['birthday'];
+    $gender = $_POST['gender'];
+
+    // Kiểm tra các điều kiện hợp lệ
+    if ($password !== $repeat_password) {
+        $error_message = 'Mật khẩu và xác nhận mật khẩu không khớp!';
+    } else {
+        // Kiểm tra xem username có tồn tại trong bảng dangky không
+        $stmt_check_dangky = $conn->prepare("SELECT * FROM dangky WHERE username = :username");
+        $stmt_check_dangky->execute(['username' => $username]);
+
+        // Kiểm tra xem username có tồn tại trong bảng taikhoan không
+        $stmt_check_taikhoan = $conn->prepare("SELECT * FROM taikhoan WHERE username = :username");
+        $stmt_check_taikhoan->execute(['username' => $username]);
+
+        if ($stmt_check_dangky->rowCount() > 0 || $stmt_check_taikhoan->rowCount() > 0) {
+            $error_message = 'Tên đăng nhập đã tồn tại!';
+        } else {
+            // Mã hóa mật khẩu
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+            // Thêm tài khoản mới vào bảng dangky
+            $stmt_dangky = $conn->prepare("INSERT INTO dangky (username, password, name, phone, birthday, gender) VALUES (:username, :password, :name, :phone, :birthday, :gender)");
+            $stmt_dangky->execute([
+                'username' => $username,
+                'password' => $hashedPassword,
+                'name' => $name,
+                'phone' => $phone,
+                'birthday' => $birthday,
+                'gender' => $gender
+            ]);
+
+            // Thêm tài khoản mới vào bảng taikhoan
+            $stmt_taikhoan = $conn->prepare("INSERT INTO taikhoan (username, password) VALUES (:username, :password)");
+            $stmt_taikhoan->execute([
+                'username' => $username,
+                'password' => $hashedPassword // Sử dụng mật khẩu đã mã hóa
+            ]);
+
+            echo "Đăng ký thành công!";
+            // Chuyển hướng về trang đăng nhập hoặc trang chủ
+            header('Location: sign_in.php');
+            exit;
+        }
+    }
+    
+    // Nếu có thông báo lỗi, hiển thị nó
+    if (!empty($error_message)) {
+        echo "<div style='color: red;'>$error_message</div>";
+    }
+}
+?>
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +97,7 @@
     <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 grid lg:grid-cols-2 gap-8 lg:gap-16">
         <div class="flex flex-col justify-center">
             <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white">Logo</h1>
-            <p class="mb-6 text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">Đăng nhập tài khoản của bạn</p>
+            <p class="mb-6 text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">Đăng kí tài khoản của bạn</p>
             <a href="./../index.php" class="text-red-400 dark:text-blue-500 hover:underline font-medium text-lg inline-flex items-center">Trang chủ 
                 <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
@@ -26,34 +107,43 @@
         <div>
             <div class="w-full lg:max-w-xl p-6 space-y-8 sm:p-8 bg-white rounded-lg shadow-xl dark:bg-gray-800">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-                    Đăng nhập
+                    Đăng kí
                 </h2>
                
-
-                <form class="max-w-sm mx-auto">
-  <div class="mb-5">
+                <?php if (!empty($error_message)): ?>
+        <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+            <?php echo $error_message; ?>
+        </div>
+    <?php endif; ?>
+    <form class="max-w-sm mx-auto" method="POST" action="">
+    <div class="mb-5">
     <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your username</label>
-    <input type="text" id="username" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" placeholder="Your username" required />
+    <input type="text" id="username"  name="username" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" placeholder="Your username" required />
   </div>
 
   <div class="mb-5">
     <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your password</label>
-    <input type="password" id="password" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required />
+    <input type="password" id="password" name = "password" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required />
   </div>
  
   <div class="mb-5">
+    <label for="repeat_password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Repeat password</label>
+    <input type="password" id="repeat_password" name="repeat_password" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required />
+  </div>
+
+  <div class="mb-5">
     <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your name</label>
-    <input type="name" id="name" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required />
+    <input type="name" id="name" name ="name" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required />
   </div>
 
   <div class="mb-5">
     <label for="phone" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your phone</label>
-    <input type="phone" id="phone" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required />
+    <input type="phone" id="phone" name = "phone" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required />
   </div>
 
   <div class="mb-5">
   <label for="birthday" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your birthday</label>
-  <input type="date" id="birthday" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required />
+  <input type="date" id="birthday" name="birthday" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" required />
 </div>
 
 
@@ -77,10 +167,10 @@
     <div class="flex items-center h-5">
       <input id="terms" type="checkbox" value="" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" required />
     </div>
-    <label for="terms" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">I agree with the <a href="#" class="text-blue-600 hover:underline dark:text-blue-500">terms and conditions</a></label>
+    <label for="terms" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">I agree with the <a href="#" class="text-red-600 hover:underline dark:text-red-500">terms and conditions</a></label>
   </div>
 
-  <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Register new account</button>
+  <button type="submit" name="submit" class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-blue-800">Đăng kí tài khoản</button>
 </form>
 
 

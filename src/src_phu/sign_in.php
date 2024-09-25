@@ -24,17 +24,46 @@ if (isset($_POST['submit'])) {
         $username = $_POST['username'];
         $password = $_POST['password'];
 
-        // Truy vấn PDO
-        $sql = "SELECT * FROM taikhoan WHERE username = :username AND password = :password";
+        // Truy vấn để tìm thông tin tài khoản từ bảng taikhoan
+        $sql = "SELECT * FROM taikhoan WHERE username = :username";
         $stmt = $conn->prepare($sql);
-        $stmt->execute(['username' => $username, 'password' => $password]);
+        $stmt->execute(['username' => $username]);
 
         if ($stmt->rowCount() == 0) {
-            $error_message = 'Tài khoản hoặc mật khẩu sai';
+            $error_message = 'Tài khoản không tồn tại';
         } else {
-            $_SESSION['username'] = $username;
-            header('Location: ./../index.php');
-            exit(); // Đảm bảo script dừng lại sau khi chuyển hướng
+            // Lấy thông tin tài khoản từ cơ sở dữ liệu
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $hashedPassword = $user['password'];
+
+            // So sánh mật khẩu đã nhập với mật khẩu đã mã hóa
+            if (!password_verify($password, $hashedPassword)) {
+                $error_message = 'Mật khẩu sai';
+            } else {
+                // Truy vấn để lấy tên từ bảng dangky thông qua phép INNER JOIN với bảng taikhoan
+                $sqlName = "SELECT dangky.name 
+                            FROM dangky 
+                            INNER JOIN taikhoan 
+                            ON dangky.username = taikhoan.username 
+                            WHERE taikhoan.username = :username";
+                $stmtName = $conn->prepare($sqlName);
+                $stmtName->execute(['username' => $username]);
+
+                // Lấy kết quả từ truy vấn
+                if ($stmtName->rowCount() > 0) {
+                    $dangki = $stmtName->fetch(PDO::FETCH_ASSOC);
+                    $name = $dangki['name'];
+
+                    // Đăng nhập thành công
+                    $_SESSION['username'] = $username;
+                    $_SESSION['name'] = $name;
+
+                    header('Location: ./../index.php');
+                    exit(); // Đảm bảo script dừng lại sau khi chuyển hướng
+                } else {
+                    $error_message = 'Không tìm thấy thông tin người dùng trong bảng dangky';
+                }
+            }
         }
     }
 }
@@ -42,6 +71,7 @@ if (isset($_POST['submit'])) {
 // Đảm bảo kết nối được đóng
 $conn = null;
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

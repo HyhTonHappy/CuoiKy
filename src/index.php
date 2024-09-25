@@ -1,28 +1,24 @@
 <?php
-// Danh sách sản phẩm
-$products = [
-    [
-        'name' => 'Giày Nike',
-        'price' => '1,000,000 VNĐ',
-        'image' => '/img/product1.jpg'
-    ],
-    [
-        'name' => 'Giày Adidas',
-        'price' => '1,200,000 VNĐ',
-        'image' => '/img/product2.jpg'
-    ],
-    [
-        'name' => 'Giày Bitis',
-        'price' => '800,000 VNĐ',
-        'image' => '/img/product3.jpg'
-    ],
-    // Thêm nhiều sản phẩm ở đây
-];
-?>
+session_start();
 
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "cuoiky";
+
+try {
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Kết nối thất bại: " . $e->getMessage());
+}
+
+// Kiểm tra trạng thái đăng nhập
+$is_logged_in = isset($_SESSION['name']); // Kiểm tra name trong session
+$name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đã đăng nhập
+?>
 <!doctype html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,10 +36,22 @@ $products = [
             </a>
 
             <div class="flex md:order-2 space-x-3 rtl:space-x-reverse justify-between items-center">
-                <a href="/./src/src_phu/sign_in.php"><button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng nhập</button></a>
-                <a href="/./src/src_phu/register.php"><button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng ký</button>
-                </a>
-                </div>
+                <?php if ($is_logged_in): ?>
+                    <!-- Hiển thị tên người dùng và nút đăng xuất khi đã đăng nhập -->
+                    <a href="./../src/src_phu/profile.php" class="text-white">Xin chào, <?php echo htmlspecialchars($name_logged_in); ?>!</a>
+                    <a href="./../src/src_phu/logout.php">
+                        <button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng xuất</button>
+                    </a>
+                <?php else: ?>
+                    <!-- Hiển thị nút đăng nhập và đăng ký khi chưa đăng nhập -->
+                    <a href="/./src/src_phu/sign_in.php">
+                        <button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng nhập</button>
+                    </a>
+                    <a href="/./src/src_phu/register.php">
+                        <button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng ký</button>
+                    </a>
+                <?php endif; ?>
+            </div>
 
             <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
                 <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
@@ -75,6 +83,7 @@ $products = [
         </div>
     </nav>
 </header>
+
     <main>
     <section class="carousel pt-16"> <!-- Thêm pt-16 để có khoảng đệm trên -->
     <div id="default-carousel" class="relative w-full" data-carousel="slide">
