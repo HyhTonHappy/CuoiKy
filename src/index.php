@@ -129,204 +129,84 @@ $name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đ
     </div>
 </section>
 
-        <section class="list mt-10">
-            <div class="container ">
+<section class="list mt-10">
+    <div class="container">
+        <!-- Thanh tìm kiếm và bộ lọc thương hiệu -->
+        <div class="flex justify-between items-center mb-4">
+            <!-- Thanh tìm kiếm -->
+            
 
-            <div class="title text-center text-xl font-bold text-red-400 mb-4 md:text-4xl">
-    <p>Hãy mua hàng nào!</p>
+            <!-- Bộ lọc thương hiệu -->
+            <div class="search-box flex items-center space-x-2">
+    <input type="text" id="search" placeholder="Tìm kiếm sản phẩm..." class="border p-2 rounded-lg flex-1" onkeyup="filterProducts()">
+    <select id="brand-filter" class="border p-2 rounded-lg" onchange="filterProducts()">
+        <option value="">Tất cả</option>
+        <option value="1">Nike</option>
+        <option value="2">Adidas</option>
+        <option value="3">Bitis</option>
+        <!-- Thêm các thương hiệu khác nếu cần -->
+    </select>
 </div>
 
-                <div class="sm:hidden">
-                    <label for="tabs" class="sr-only">Select your
-                        country</label>
-                    <select id="tabs"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        <option value="#all">Tất cả</option>
-                        <option value="#nike">Giày nike</option>
-                        <option value="#adidas">Giày adidas</option>
-                        <option value="#bitis">Giày bitis</option>
-                    </select>
-                </div>
-                <ul class="hidden text-sm font-medium text-center text-gray-500 rounded-lg shadow sm:flex dark:divide-gray-700 dark:text-gray-400">
-                    <li class="w-full focus-within:z-10">
-                        <a href="#all" class="inline-block w-full p-4 text-white bg-red-400 border-r border-gray-200 dark:border-gray-700 rounded-s-lg focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-gray-700 dark:text-white link-item" aria-current="page">Tất cả</a>
-                    </li>
-                    <li class="w-full focus-within:z-10">
-                        <a href="#nike" class="inline-block w-full p-4 text-white bg-red-400 border-r border-gray-200 dark:border-gray-700 hover:text-white hover:bg-red-400 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:hover:text-white dark:bg-gray-800 link-item">Giày nike</a>
-                    </li>
-                    <li class="w-full focus-within:z-10">
-                        <a href="#adidas" class="inline-block w-full p-4 text-white bg-red-400 border-r border-gray-200 dark:border-gray-700 hover:text-white hover:bg-red-400 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:hover:text-white dark:bg-gray-800 link-item">Giày adidas</a>
-                    </li>
-                    <li class="w-full focus-within:z-10">
-                        <a href="#bitis" class="inline-block w-full p-4 text-white bg-red-400 border-s-0 border-gray-200 dark:border-gray-700 rounded-e-lg hover:text-white hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:hover:text-white dark:bg-gray-800 link-item">Giày bitis</a>
-                    </li>
-                </ul>
+        </div>
 
-                <div class="tab-content mt-10">
-                    <form class="max-w-md ml-auto mb-10">
-                        <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                </svg>
-                            </div>
-                            <input type="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search Mockups, Logos..." required />
-                            <button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
-                        </div>
-                    </form>
-                    <div id="all" class="content">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                            <div class="border border-inherit">
-                                <img class="adidas_1 h-auto max-w-full rounded-lg" src="/img/adidas_1.webp" alt="">
-                                <div class="content pl-5">
-                                    <p class="mt-1 font-bold">Giày adidas trắng style mới nhất</p>
-                                    <p class="mt-1">1,500,000 <span>VND</span></p>
-                                    <div class="flex justify-between mt-5">
-                                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                            <a href="./src_phu/muangay.php"> <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                                Mua ngay
-                                            </span></a>   
-                                        </button>
-                                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                                Thêm vào giỏ hàng
-                                            </span>
-                                        </button>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <?php
+            // Truy vấn SQL để lấy dữ liệu sản phẩm
+            $sql = "SELECT product_id, name_product, price, img1, status, description, brand_id FROM product"; // Đảm bảo có trường 'brand'
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                    </div>
+            if ($products) {
+                foreach ($products as $product) {
+                    $product_id = $product['product_id'];
+                    $name_product = $product['name_product'];
+                    $price = $product['price'];
+                    $img1 = $product['img1']; // Chỉ sử dụng img1
+                    $status = $product['status'];
+                    $description = $product['description'];
+                    $brand_id = isset($product['brand_id']) ? $product['brand_id'] : ''; // Lấy thương hiệu sản phẩm
+            
+                    // Tạo đường dẫn hình ảnh
+                    $image_path = './../../../../../img/' . htmlspecialchars($img1);
+            
+                    // Hiển thị sản phẩm
+                    echo '
+                    <div class="border border-inherit product" data-brand="' . htmlspecialchars($brand_id) . '">
+                        <img class="h-auto max-w-full rounded-lg transition-all duration-500 transform hover:scale-105" 
+                             src="' . $image_path . '" 
+                             alt="">
+                        <div class="content pl-5">
+                            <p class="mt-1 font-bold">' . htmlspecialchars($name_product) . '</p>
+                            <p class="mt-1">' . number_format($price) . ' VND</p>';
+            
+                    // Kiểm tra trạng thái đăng nhập và hiển thị nút tương ứng
+                    echo '
+                        <div class="flex justify-between mt-5">
+                            <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
+                                <a href="./src_phu/muangay.php?product_id=' . $product_id . '"> 
+                                    <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">Mua ngay</span>
+                                </a>
+                            </button>
+                            <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
+                                <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">Thêm vào giỏ hàng</span>
+                            </button>
+                        </div>';
+            
+                    echo '</div></div>';
+                }
+            } else {
+                echo "Không có sản phẩm nào.";
+            }
+            
 
-                                </div>
-                            </div>
-                            <div class="border border-inherit">
-                                <img class="nike_1 h-auto max-w-full rounded-lg" src="/img/nike_1.webp" alt="">
-                                <div class="content pl-5">
-                                    <p class="mt-1 font-bold">Giày sportswear Nike Air Max Plus nam
-                                    </p>
-                                    <p class="mt-1">5,300,000 <span>VND</span></p>
-                                    <div class="flex justify-between mt-5">
-                                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                        <a href="./src_phu/muangay.php"> <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                                Mua ngay
-                                            </span></a> 
-                                        </button>
-                                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                                Thêm vào giỏ hàng
-                                            </span>
-                                        </button>
-
-                                    </div>
-
-                                </div>
-                            </div>
-                            <div class="border border-inherit">
-                                <img class="adidas_1 h-auto max-w-full rounded-lg" src="/img/adidas_1.webp" alt="">
-                                <div class="content pl-5">
-                                    <p class="mt-1 font-bold">Giày adidas trắng style mới nhất</p>
-                                    <p class="mt-1">1,500,000 <span>VND</span></p>
-                                    <div class="flex justify-between mt-5">
-                                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                        <a href="./src_phu/muangay.php"> <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                                Mua ngay
-                                            </span></a> 
-                                        </button>
-                                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                                Thêm vào giỏ hàng
-                                            </span>
-                                        </button>
-
-                                    </div>
-
-                                </div>
-                            </div>
-                            <div class="border border-inherit">
-                                <img class="adidas_1 h-auto max-w-full rounded-lg" src="/img/adidas_1.webp" alt="">
-                                <div class="content pl-5">
-                                    <p class="mt-1 font-bold">Giày adidas trắng style mới nhất</p>
-                                    <p class="mt-1">1,500,000 <span>VND</span></p>
-                                    <div class="flex justify-between mt-5">
-                                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                        <a href="./src_phu/muangay.php"> <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                                Mua ngay
-                                            </span></a> 
-                                        </button>
-                                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                                Thêm vào giỏ hàng
-                                            </span>
-                                        </button>
-
-                                    </div>
-
-                                </div>
-                            </div>
-                            <div class="border border-inherit">
-                                <img class="adidas_1 h-auto max-w-full rounded-lg" src="/img/adidas_1.webp" alt="">
-                                <div class="content pl-5">
-                                    <p class="mt-1 font-bold">Giày adidas trắng style mới nhất</p>
-                                    <p class="mt-1">1,500,000 <span>VND</span></p>
-                                    <div class="flex justify-between mt-5">
-                                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                        <a href="./src_phu/muangay.php"> <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                                Mua ngay
-                                            </span></a> 
-                                        </button>
-                                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                                Thêm vào giỏ hàng
-                                            </span>
-                                        </button>
-
-                                    </div>
-
-                                </div>
-                            </div>
-                            <div class="border border-inherit">
-                                <img class="adidas_1 h-auto max-w-full rounded-lg" src="/img/adidas_1.webp" alt="">
-                                <div class="content pl-5">
-                                    <p class="mt-1 font-bold">Giày adidas trắng style mới nhất</p>
-                                    <p class="mt-1">1,500,000 <span>VND</span></p>
-                                    <div class="flex justify-between mt-5">
-                                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                        <a href="./src_phu/muangay.php"> <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                                Mua ngay
-                                            </span></a> 
-                                        </button>
-                                        <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                                Thêm vào giỏ hàng
-                                            </span>
-                                        </button>
-
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="nike" class="content hidden">
-                        <h3>Menu 2 - Giày Nike</h3>
-                        <p>Some content about Nike shoes.</p>
-                    </div>
-                    <div id="adidas" class="content hidden">
-                        <h3>Menu 3 - Giày Adidas</h3>
-                        <p>Some content about Adidas shoes.</p>
-                    </div>
-                    <div id="bitis" class="content hidden">
-                        <h3>Menu 4 - Giày Biti's</h3>
-                        <p>Some content about Biti's shoes.</p>
-                    </div>
-                </div>
-
-                <div class="lits_more text-center mt-10 font-semibold text-red-400 text-xl">
-                    <a href="#">Còn nhiều hơn nữa, hãy khám phá nhé!</a>
-                </div>
-            </div>
-
-        </section>
+            // Đóng kết nối PDO
+            $conn = null;
+            ?>
+        </div>
+    </div>
+</section>
 
         <section class="list_another mt-20">
             <div class="container">
@@ -639,6 +519,17 @@ $name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đ
     </div>
 </footer>
 
+<div id="cart" class="fixed bottom-5 right-5 bg-white border border-gray-300 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center">
+    <a href="/gio_hang.php">
+        <button class="flex items-center justify-center w-16 h-16 bg-red-400 text-white rounded-full hover:bg-red-500 transition-all duration-300 shadow-lg focus:outline-none">
+            <!-- Icon giỏ hàng -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5H3m4 8l-1.5 6h11L17 13m0 0H7m0 0l1.5 6h11L17 13" />
+            </svg>
+        </button>
+        <p class="mt-2 text-sm text-gray-700">Giỏ hàng</p>
+    </a>
+</div>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
     <script>
         const menuToggle = document.getElementById('menu-toggle');
@@ -722,6 +613,29 @@ $name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đ
         }
     };
 </script>
+
+<script>
+    function filterProducts() {
+        var selectedBrand = document.getElementById("brand-filter").value; // Giá trị thương hiệu đã chọn
+        var searchInput = document.getElementById("search").value.toLowerCase(); // Giá trị tìm kiếm
+        var products = document.querySelectorAll('.product'); // Lấy tất cả sản phẩm
+
+        products.forEach(function(product) {
+            var brandId = product.getAttribute('data-brand'); // Lấy brand_id từ thuộc tính data-brand
+            var productName = product.querySelector('.content p.font-bold').textContent.toLowerCase(); // Lấy tên sản phẩm
+            
+            // Kiểm tra nếu sản phẩm thỏa mãn thương hiệu đã chọn và tìm kiếm
+            if ((selectedBrand === "" || selectedBrand === brandId) && 
+                (productName.includes(searchInput))) {
+                product.style.display = "block"; // Hiển thị sản phẩm
+            } else {
+                product.style.display = "none"; // Ẩn sản phẩm
+            }
+        });
+    }
+</script>
+
+
 
 
 </body>

@@ -108,3 +108,32 @@ main {
     width: 120px;
   }
 }
+
+/* list */
+.list .image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.list .image-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: opacity 0.3s ease; /* Hiệu ứng chuyển đổi cho sự mờ dần */
+}
+
+.list .image-container img:hover {
+  opacity: 0; /* Ảnh đầu tiên mờ đi khi di chuột */
+}
+
+.list .image-container img.hover-img {
+  display: block; /* Hiện ảnh thứ hai */
+}
+
+.list .image-container:hover img.hover-img {
+  display: block; /* Hiện ảnh thứ hai khi di chuột */
+}
+
+.list .image-container:hover img:not(.hover-img) {
+  display: none; /* Ẩn ảnh đầu tiên khi di chuột */
+}

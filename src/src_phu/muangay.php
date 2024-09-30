@@ -1,10 +1,44 @@
 <?php
-// Danh sách sản phẩm
-$products = [
-    
-];
-?>
+session_start();
 
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "cuoiky";
+
+try {
+    // Kết nối đến cơ sở dữ liệu
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Kết nối thất bại: " . $e->getMessage());
+}
+
+// Kiểm tra trạng thái đăng nhập
+$is_logged_in = isset($_SESSION['name']); // Kiểm tra name trong session
+$name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đã đăng nhập
+
+// Lấy product_id từ query string
+$product_id = isset($_GET['product_id']) ? intval($_GET['product_id']) : 0;
+
+// Truy vấn thông tin sản phẩm từ cơ sở dữ liệu
+try {
+    $sql = "SELECT * FROM product WHERE product_id = :product_id"; // Sử dụng prepared statement
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+    $stmt->execute();
+
+    if ($stmt->rowCount() > 0) {
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+    } else {
+        echo "Sản phẩm không tồn tại.";
+        exit; // Thoát nếu sản phẩm không tìm thấy
+    }
+} catch (PDOException $e) {
+    echo "Lỗi truy vấn: " . $e->getMessage();
+    exit; // Thoát nếu có lỗi trong truy vấn
+}
+?>
 <!doctype html>
 <html lang="vi">
 
@@ -25,14 +59,26 @@ $products = [
             </a>
 
             <div class="flex md:order-2 space-x-3 rtl:space-x-reverse justify-between items-center">
-                <a href="./sign_in.php"><button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng nhập</button></a>
-                <a href="./register.php"><button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng ký</button>
-                </a>
-                </div>
+                <?php if ($is_logged_in): ?>
+                    <!-- Hiển thị tên người dùng và nút đăng xuất khi đã đăng nhập -->
+                    <a href="./../src/src_phu/profile.php" class="text-white">Xin chào, <?php echo htmlspecialchars($name_logged_in); ?>!</a>
+                    <a href="./../src/src_phu/logout.php">
+                        <button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng xuất</button>
+                    </a>
+                <?php else: ?>
+                    <!-- Hiển thị nút đăng nhập và đăng ký khi chưa đăng nhập -->
+                    <a href="/./src/src_phu/sign_in.php">
+                        <button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng nhập</button>
+                    </a>
+                    <a href="/./src/src_phu/register.php">
+                        <button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng ký</button>
+                    </a>
+                <?php endif; ?>
+            </div>
 
             <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
                 <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
-                    <li><a href="./../../src/index.php" class="block py-2 px-3 text-white rounded md:bg-transparent md:text-white md:p-0 md:dark:text-white hover:text-red-100" aria-current="Home">Trang chủ</a></li>
+                    <li><a href="./index.php" class="block py-2 px-3 text-white rounded md:bg-transparent md:text-white md:p-0 md:dark:text-white hover:text-red-100" aria-current="Home">Trang chủ</a></li>
                     <li><a href="#" class="block py-2 px-3 text-white rounded md:hover:bg-transparent md:hover:text-red-100 md:p-0 dark:text-white dark:hover:text-white md:dark:hover:bg-transparent">Chính sách</a></li>
                     <li><a href="#" class="block py-2 px-3 text-white rounded md:hover:bg-transparent md:p-0 dark:text-white dark:hover:text-white md:dark:hover:bg-transparent">Đối tác</a></li>
                     <li><a href="#" class="block py-2 px-3 text-white rounded md:hover:bg-transparent md:p-0 dark:text-white dark:hover:text-white md:dark:hover:bg-transparent">Hàng mới về</a></li>
@@ -60,171 +106,103 @@ $products = [
         </div>
     </nav>
 </header>
+
     <main>
-   <section class="detail_product" style="padding-top: 70px;">
-    <div class="container">
-        <div class="banner w-full h-auto max-w-full md:object-cover">
-            <img src="/img/banner_2.webp" alt="">
-        </div>
-        <div class="content pt-20 flex flex-col justify-center mt-20 md:flex-row md:justify-around">
-        <div class="img w-1/2 md:w-full">
-    <div class="grid gap-4">
-        <div class="main-img">
-            <img class="h-auto max-w-full rounded-lg cursor-pointer" src="/img/adidas_1.webp" alt="" onclick="openModal(this)">
-        </div>
-        <div class="grid grid-cols-4 gap-4">
-            <div>
-                <img class="w-full max-w-md md:max-w-none md:w-full cursor-pointer" src="/img/adidas1_1.webp" alt="" onclick="openModal(this)">
+    <section class="detail_product" style="padding-top: 70px;">
+        <div class="container">
+            <div class="banner w-full h-auto max-w-full md:object-cover">
+                <img src="/img/banner_2.webp" alt="">
             </div>
-            <div>
-                <img class="h-auto max-w-full rounded-lg cursor-pointer" src="/img/adidas1_2.webp" alt="" onclick="openModal(this)">
-            </div>
-            <div>
-                <img class="h-auto max-w-full rounded-lg cursor-pointer" src="/img/adidas1_3.webp" alt="" onclick="openModal(this)">
-            </div>
-            <div>
-                <img class="h-auto max-w-full rounded-lg cursor-pointer" src="/img/adidas1.webp" alt="" onclick="openModal(this)">
+            <div class="content pt-20 flex flex-col justify-center mt-20 md:flex-row md:justify-around">
+                <div class="img w-1/2 md:w-full">
+                    <div class="grid gap-4">
+                        <div class="main-img">
+                            <img class="h-auto max-w-full rounded-lg cursor-pointer" src="/img/<?php echo htmlspecialchars($product['img1']); ?>" alt="" onclick="openModal(this)">
+                        </div>
+                        <div class="grid grid-cols-4 gap-4">
+                            <div>
+                                <img class="w-full max-w-md md:max-w-none md:w-full cursor-pointer" src="/img/<?php echo htmlspecialchars($product['img2']); ?>" alt="" onclick="openModal(this)">
+                            </div>
+                            <div>
+                                <img class="h-auto max-w-full rounded-lg cursor-pointer" src="/img/<?php echo htmlspecialchars($product['img3']); ?>" alt="" onclick="openModal(this)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content_title">
+                    <div class="content_shoe text-left">
+                        <h3 class="font-bold"><?php echo htmlspecialchars($product['name_product']); ?></h3>
+                        <p class="mt-5">Giá: <?php echo number_format($product['price']); ?> VND</p>
+                        <p class="mt-5">Tình trạng: <?php echo htmlspecialchars($product['status']); ?></p>
+                    </div>
+
+                    <h5 class="mt-5">Size</h5>
+                    <div class="size grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-20">
+                        <?php
+                        // Giả sử có một mảng chứa các kích thước có sẵn
+                        $sizes = [39, 40, 41, 42, 43, 44, 45];
+                        foreach ($sizes as $size) {
+                            echo '<label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer hover:bg-gray-100" onclick="selectSize(' . $size . ')">
+                                    <input type="radio" name="size" value="' . $size . '" class="sr-only">' . $size . '
+                                  </label>';
+                        }
+                        ?>
+                    </div>
+
+                    <div class="quantity_group mt-10">
+                        <div class="mx-auto"> 
+                            <div class="flex justify-center space-x-8"> 
+                                <div class="w-64"> 
+                                    <div class="flex items-center"> 
+                                        <button type="button" class="btn-number bg-red-400 text-gray-700 px-4 py-2 rounded-l disabled:opacity-50" disabled="disabled" data-type="minus" data-field="quant[1]"> 
+                                            <span class="text-xl">-</span> 
+                                        </button> 
+                                        <input name="quant[1]" class="input-number border text-center w-full py-2" value="1" type="text" min="1" max="9999999999999">
+                                        <button type="button" class="btn-number bg-red-400 text-gray-700 px-4 py-2 rounded-r" data-type="plus" data-field="quant[1]"> 
+                                            <span class="text-xl">+</span> 
+                                        </button> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-list flex flex-col justify-center md:flex-row ">
+                        <div class="btn_buynow mt-5">
+                            <button class="relative inline-flex items-center justify-center p-1.5 mb-2 me-2 overflow-hidden text-lg font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 w-full lg:w-auto">
+                                <a href="./buynow.php?product_id=<?php echo $product_id; ?>">
+                                    <span class="relative px-10 py-4 transition-all ease-in duration-75 dark:bg-gray-900 rounded-md group-hover:bg-opacity-0 text-center">
+                                        Mua ngay
+                                    </span>
+                                </a>
+                            </button>
+                        </div>
+                        <div class="btn_cart mt-5">
+                            <button class="relative inline-flex items-center justify-center p-1.5 mb-2 me-2 overflow-hidden text-lg font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 w-full lg:w-auto">
+                                <a href="#">
+                                    <span class="relative px-10 py-4 transition-all ease-in duration-75 dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+                                        Thêm vào giỏ hàng
+                                    </span>
+                                </a>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Modal -->
-<div id="myModal" class="fixed inset-0 hidden bg-black bg-opacity-75 flex items-center justify-center z-50" 
-         onclick="closeModal()">
-        <span class="absolute top-0 right-0 text-white text-4xl cursor-pointer p-4" onclick="closeModal()">&times;</span>
-        <div class="relative max-w-3xl w-full mx-4 p-4">
-            <img id="modalImg" class="w-full max-h-[90vh] object-contain" src="">
-        </div>
-    </div>
-
-    <div class="content_title">
-    <div class="content_shoe text-left">
-    <h3 class="font-bold">Giày Thể Thao Nam Biti's Hunter X 2k22 DSMH02202</h3>
-<p class="mt-5">Giá tiền</p>
-<p class="mt-5">Tình trạng</p>
-    </div>
-<div class="img_choice">
-<div class="img_1_choice">
-
-</div>
-
-<div class="img_1_choice">
-
-</div>
-
-<div class="img_1_choice">
-
-</div>
-
-</div>
-<h5 class="mt-5">Size</h5>
-<div class="size grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-20">
-  
-  <!-- Size 39 -->
-  <label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer hover:bg-gray-100 " onclick="selectSize(39)" >
-    <input type="radio" name="size" value="39" class="sr-only">
-    39
-  </label>
-
-  <!-- Size 40 (Selected) -->
-  <label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer hover:bg-gray-100 " onclick="selectSize(40)" >
-    <input type="radio" name="size" value="40" checked class="sr-only">
-    40
-  </label>
-
-  <!-- Size 41 -->
-  <label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer hover:bg-gray-100 " onclick="selectSize(41)" >
-    <input type="radio" name="size" value="41" class="sr-only">
-    41
-  </label>
-
-  <!-- Size 42 -->
-  <label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer hover:bg-gray-100 " onclick="selectSize(42)" >
-    <input type="radio" name="size" value="42" class="sr-only">
-    42
-  </label>
-
-  <!-- Size 43 -->
-  <label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer hover:bg-gray-100 " onclick="selectSize(43)">
-    <input type="radio" name="size" value="43" class="sr-only">
-    43
-  </label>
-
-  <!-- Size 44 (Disabled) -->
-  <label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer hover:bg-gray-100 " onclick="selectSize(44)" >
-    <input type="radio" name="size" value="44" class="sr-only" disabled>
-    44
-  </label>
-
-  <!-- Size 45 (Disabled) -->
-  <label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer hover:bg-gray-100 " onclick="selectSize(45)" >
-    <input type="radio" name="size" value="45" class="sr-only" disabled>
-    45
-  </label>
-</div>
-
-<div class="quantity_group mt-10">
-<div class="mx-auto"> 
-  <div class="flex justify-center space-x-8"> 
-    <!-- Input Group 1 -->
-    <div class="w-64"> 
-      <div class="flex items-center"> 
-        <button type="button" class="btn-number bg-red-400 text-gray-700 px-4 py-2 rounded-l disabled:opacity-50" disabled="disabled" data-type="minus" data-field="quant[1]"> 
-          <span class="text-xl">-</span> 
-        </button> 
-        <input name="quant[1]" class="input-number border text-center w-full py-2" value="1" type="text" min="1" max="9999999999999">
-        <button type="button" class="btn-number bg-red-400 text-gray-700 px-4 py-2 rounded-r" data-type="plus" data-field="quant[1]"> 
-          <span class="text-xl">+</span> 
-        </button> 
-      </div>
-    </div>
-    
-  </div>
-</div>
-
-</div>
-<div class="btn-list flex flex-col justify-center md:flex-row ">
-<div class="btn_buynow mt-5">
-    <button class="relative inline-flex items-center justify-center p-1.5 mb-2 me-2 overflow-hidden text-lg font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 w-full lg:w-auto">
-        <a href="#">
-            <span class="relative px-10 py-4 transition-all ease-in duration-75 dark:bg-gray-900 rounded-md group-hover:bg-opacity-0 text-center">
-                Mua ngay
-            </span>
-        </a>
-    </button>
-</div>
-<div class="btn_cart mt-5">
-    <button class="relative inline-flex items-center justify-center p-1.5 mb-2 me-2 overflow-hidden text-lg font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 w-full lg:w-auto">
-        <a href="#">
-            <span class="relative px-10 py-4 transition-all ease-in duration-75 dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                Thêm vào giỏ hàng
-            </span>
-        </a>
-    </button>
-</div>
-</div>
-
-
-
-
-
-
-
-</div>
-
-    </div>
-        </div>
-    </div>
-   </section>
+    </section>
 
     <section class="detail mt-10">
         <div class="container">
             <div class="title">
                 <h4 class="font-bold text-xl">Mô tả sản phẩm</h4>
             </div>
+            <p><?php echo htmlspecialchars($product['description']); ?></p>
         </div>
     </section>
+
+    
         
     </main>
 
