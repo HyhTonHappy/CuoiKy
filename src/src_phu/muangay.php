@@ -28,6 +28,16 @@ try {
     $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
     $stmt->execute();
 
+    // Truy vấn danh sách size có sẵn
+    $sizesQuery = $conn->prepare("SELECT s.size FROM sizes s JOIN size_product sp ON s.size_id = sp.size_id WHERE sp.product_id = :product_id");
+    $sizesQuery->execute(['product_id' => $product_id]);
+    $availableSizes = $sizesQuery->fetchAll(PDO::FETCH_COLUMN);
+
+    // Truy vấn danh sách color có sẵn
+    $colorsQuery = $conn->prepare("SELECT c.color FROM colors c JOIN color_product cp ON c.color_id = cp.color_id WHERE cp.product_id = :product_id");
+    $colorsQuery->execute(['product_id' => $product_id]);
+    $availableColors = $colorsQuery->fetchAll(PDO::FETCH_COLUMN);
+
     if ($stmt->rowCount() > 0) {
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
     } else {
@@ -39,6 +49,7 @@ try {
     exit; // Thoát nếu có lỗi trong truy vấn
 }
 ?>
+
 <!doctype html>
 <html lang="vi">
 
@@ -139,16 +150,34 @@ try {
 
                     <h5 class="mt-5">Size</h5>
                     <div class="size grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-20">
-                        <?php
-                        // Giả sử có một mảng chứa các kích thước có sẵn
-                        $sizes = [39, 40, 41, 42, 43, 44, 45];
-                        foreach ($sizes as $size) {
-                            echo '<label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer hover:bg-gray-100" onclick="selectSize(' . $size . ')">
-                                    <input type="radio" name="size" value="' . $size . '" class="sr-only">' . $size . '
-                                  </label>';
-                        }
-                        ?>
-                    </div>
+    <?php
+    $sizes = [39, 40, 41, 42, 43, 44, 45];
+    foreach ($sizes as $size) {
+        $disabled = in_array($size, $availableSizes) ? '' : 'disabled';
+        $classDisabled = $disabled ? 'bg-gray-200 cursor-not-allowed' : 'hover:bg-gray-100';
+
+        echo '<label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer ' . $classDisabled . '" ' . ($disabled ? '' : 'onclick="selectSize(' . $size . ')"') . '>
+        <input type="radio" name="size" value="' . $size . '" class="sr-only" ' . ($disabled ? 'disabled' : '') . '>' . $size . '
+        </label>';
+    }
+    ?>
+</div>
+
+<div class="color grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-20">
+    <?php
+    $colors = ['Red', 'Blue', 'Green', 'Black', 'Brown'];
+    foreach ($colors as $color) {
+        $disabled = in_array($color, $availableColors) ? '' : 'disabled';
+        $classDisabled = $disabled ? 'bg-gray-200 cursor-not-allowed' : 'hover:bg-gray-100';
+
+        echo '<label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer ' . $classDisabled . '" ' . ($disabled ? '' : 'onclick="selectColor(\'' . $color . '\')"') . '>
+        <input type="radio" name="color" value="' . $color . '" class="sr-only" ' . ($disabled ? 'disabled' : '') . '>' . $color . '
+        </label>';
+    }
+    ?>
+</div>
+
+
 
                     <div class="quantity_group mt-10">
                         <div class="mx-auto"> 
@@ -169,15 +198,18 @@ try {
                     </div>
 
                     <div class="btn-list flex flex-col justify-center md:flex-row ">
-                        <div class="btn_buynow mt-5">
-                            <button class="relative inline-flex items-center justify-center p-1.5 mb-2 me-2 overflow-hidden text-lg font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 w-full lg:w-auto">
-                                <a href="./buynow.php?product_id=<?php echo $product_id; ?>">
-                                    <span class="relative px-10 py-4 transition-all ease-in duration-75 dark:bg-gray-900 rounded-md group-hover:bg-opacity-0 text-center">
-                                        Mua ngay
-                                    </span>
-                                </a>
-                            </button>
-                        </div>
+                    <div class="btn_buynow mt-5">
+    <a href="#" 
+       class="relative inline-flex items-center justify-center p-1.5 mb-2 me-2 overflow-hidden text-lg font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 w-full lg:w-auto" 
+       onclick="updateBuyNowLink();">
+        Mua ngay
+    </a>
+</div>
+
+
+
+
+
                         <div class="btn_cart mt-5">
                             <button class="relative inline-flex items-center justify-center p-1.5 mb-2 me-2 overflow-hidden text-lg font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 w-full lg:w-auto">
                                 <a href="#">
@@ -475,21 +507,46 @@ $(document).ready(function() {
     };
 </script>
 
+
+
 <script>
-  function selectSize(value) {
-    const radios = document.querySelectorAll('input[name="size"]');
-    radios.forEach(radio => {
-      if (radio.value == value) {
-        radio.checked = true;
-        radio.parentElement.classList.add('bg-red-400', 'text-white');
-      } else {
-        radio.checked = false;
-        radio.parentElement.classList.remove('bg-red-400', 'text-white');
-        radio.parentElement.classList.add('hover:bg-gray-100');
-      }
+let selectedSize = null;
+let selectedColor = null;
+
+function selectSize(size) {
+    selectedSize = size;
+    document.querySelectorAll('input[name="size"]').forEach(input => {
+        input.parentElement.classList.remove('border-red-400', 'bg-red-400');
     });
-  }
+    event.currentTarget.classList.add('border-red-400', 'bg-red-400');
+}
+
+function selectColor(color) {
+    selectedColor = color;
+    document.querySelectorAll('input[name="color"]').forEach(input => {
+        input.parentElement.classList.remove('border-red-400', 'bg-red-400');
+    });
+    event.currentTarget.classList.add('border-red-400', 'bg-red-400');
+}
+
+// Cập nhật liên kết "Mua ngay"
+function updateBuyNowLink() {
+    const quantity = document.querySelector('.input-number').value || 1; // Lấy số lượng từ input
+    const link = `./buynow.php?product_id=<?php echo $product_id; ?>&size=${selectedSize}&color=${selectedColor}&quantity=${quantity}`;
+    document.querySelector('.btn_buynow a').setAttribute('href', link);
+}
+
+
+document.querySelectorAll('input[name="size"]').forEach(input => {
+    input.addEventListener('change', updateBuyNowLink);
+});
+document.querySelectorAll('input[name="color"]').forEach(input => {
+    input.addEventListener('change', updateBuyNowLink);
+});
+document.querySelector('.input-number').addEventListener('input', updateBuyNowLink);
 </script>
+
+
 </body>
 
 </html>
