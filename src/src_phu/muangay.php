@@ -1,3 +1,4 @@
+
 <?php
 session_start();
 
@@ -89,7 +90,7 @@ try {
 
             <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
                 <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
-                    <li><a href="./index.php" class="block py-2 px-3 text-white rounded md:bg-transparent md:text-white md:p-0 md:dark:text-white hover:text-red-100" aria-current="Home">Trang chủ</a></li>
+                    <li><a href="./../../src/index.php" class="block py-2 px-3 text-white rounded md:bg-transparent md:text-white md:p-0 md:dark:text-white hover:text-red-100" aria-current="Home">Trang chủ</a></li>
                     <li><a href="#" class="block py-2 px-3 text-white rounded md:hover:bg-transparent md:hover:text-red-100 md:p-0 dark:text-white dark:hover:text-white md:dark:hover:bg-transparent">Chính sách</a></li>
                     <li><a href="#" class="block py-2 px-3 text-white rounded md:hover:bg-transparent md:p-0 dark:text-white dark:hover:text-white md:dark:hover:bg-transparent">Đối tác</a></li>
                     <li><a href="#" class="block py-2 px-3 text-white rounded md:hover:bg-transparent md:p-0 dark:text-white dark:hover:text-white md:dark:hover:bg-transparent">Hàng mới về</a></li>
@@ -179,23 +180,23 @@ try {
 
 
 
-                    <div class="quantity_group mt-10">
-                        <div class="mx-auto"> 
-                            <div class="flex justify-center space-x-8"> 
-                                <div class="w-64"> 
-                                    <div class="flex items-center"> 
-                                        <button type="button" class="btn-number bg-red-400 text-gray-700 px-4 py-2 rounded-l disabled:opacity-50" disabled="disabled" data-type="minus" data-field="quant[1]"> 
-                                            <span class="text-xl">-</span> 
-                                        </button> 
-                                        <input name="quant[1]" class="input-number border text-center w-full py-2" value="1" type="text" min="1" max="9999999999999">
-                                        <button type="button" class="btn-number bg-red-400 text-gray-700 px-4 py-2 rounded-r" data-type="plus" data-field="quant[1]"> 
-                                            <span class="text-xl">+</span> 
-                                        </button> 
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<div class="quantity_group mt-10">
+    <div class="mx-auto">
+        <div class="flex justify-center space-x-8">
+            <div class="w-64">
+                <div class="flex items-center">
+                    <button type="button" class="btn-number bg-red-400 text-gray-700 px-4 py-2 rounded-l" data-type="minus">
+                        <span class="text-xl">-</span>
+                    </button>
+                    <input id="quantityInput" class="input-number border text-center w-full py-2" value="1" type="number" min="1" max="9999999999999">
+                    <button type="button" class="btn-number bg-red-400 text-gray-700 px-4 py-2 rounded-r" data-type="plus">
+                        <span class="text-xl">+</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
                     <div class="btn-list flex flex-col justify-center md:flex-row ">
                     <div class="btn_buynow mt-5">
@@ -206,19 +207,22 @@ try {
     </a>
 </div>
 
+<div class="btn_cart mt-5">
+    <form id="addToCartForm" method="POST" action="addtocart.php">
+        <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
+        <input type="hidden" name="size" id="selectedSize" value="">
+        <input type="hidden" name="color" id="selectedColor" value="">
+        <input type="hidden" name="quantity" id="selectedQuantity" value="1">
+
+        <button type="submit" class="relative inline-flex items-center justify-center p-1.5 mb-2 me-2 overflow-hidden text-lg font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 w-full lg:w-auto">
+            <span class="relative px-10 py-4 transition-all ease-in duration-75 dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+                Thêm vào giỏ hàng
+            </span>
+        </button>
+    </form>
+</div>
 
 
-
-
-                        <div class="btn_cart mt-5">
-                            <button class="relative inline-flex items-center justify-center p-1.5 mb-2 me-2 overflow-hidden text-lg font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 w-full lg:w-auto">
-                                <a href="#">
-                                    <span class="relative px-10 py-4 transition-all ease-in duration-75 dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                                        Thêm vào giỏ hàng
-                                    </span>
-                                </a>
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -515,6 +519,7 @@ let selectedColor = null;
 
 function selectSize(size) {
     selectedSize = size;
+    document.querySelector('#selectedSize').value = size;  // Cập nhật size vào form
     document.querySelectorAll('input[name="size"]').forEach(input => {
         input.parentElement.classList.remove('border-red-400', 'bg-red-400');
     });
@@ -523,11 +528,17 @@ function selectSize(size) {
 
 function selectColor(color) {
     selectedColor = color;
+    document.querySelector('#selectedColor').value = color;  // Cập nhật color vào form
     document.querySelectorAll('input[name="color"]').forEach(input => {
         input.parentElement.classList.remove('border-red-400', 'bg-red-400');
     });
     event.currentTarget.classList.add('border-red-400', 'bg-red-400');
 }
+
+// Cập nhật số lượng khi người dùng thay đổi số lượng
+document.querySelector('.input-number').addEventListener('input', function() {
+    document.querySelector('#selectedQuantity').value = this.value;
+});
 
 // Cập nhật liên kết "Mua ngay"
 function updateBuyNowLink() {
@@ -537,11 +548,37 @@ function updateBuyNowLink() {
 }
 
 
-document.querySelectorAll('input[name="size"]').forEach(input => {
-    input.addEventListener('change', updateBuyNowLink);
-});
-document.querySelectorAll('input[name="color"]').forEach(input => {
-    input.addEventListener('change', updateBuyNowLink);
+document.addEventListener('DOMContentLoaded', function() {
+    const quantityInput = document.getElementById('quantityInput');
+    const hiddenQuantityField = document.getElementById('selectedQuantity');
+
+    // Update hidden quantity field
+    function updateHiddenField() {
+        hiddenQuantityField.value = quantityInput.value || 1; // Ensure it defaults to 1 if empty
+    }
+
+    quantityInput.addEventListener('input', updateHiddenField);
+
+    // Handle button clicks for incrementing and decrementing
+    document.querySelectorAll('.btn-number').forEach(button => {
+        button.addEventListener('click', function() {
+            let currentValue = parseInt(quantityInput.value);
+
+            if (this.getAttribute('data-type') === 'plus') {
+                currentValue++;
+            } else if (this.getAttribute('data-type') === 'minus') {
+                if (currentValue > 1) {
+                    currentValue--;
+                }
+            }
+
+            quantityInput.value = currentValue;
+            updateHiddenField(); // Update the hidden quantity field
+        });
+    });
+
+    // Initialize the hidden field with the starting quantity
+    updateHiddenField();
 });
 document.querySelector('.input-number').addEventListener('input', updateBuyNowLink);
 </script>

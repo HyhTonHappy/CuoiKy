@@ -38,7 +38,9 @@ $name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đ
             <div class="flex md:order-2 space-x-3 rtl:space-x-reverse justify-between items-center">
                 <?php if ($is_logged_in): ?>
                     <!-- Hiển thị tên người dùng và nút đăng xuất khi đã đăng nhập -->
-                    <a href="./../src/src_phu/profile.php" class="text-white">Xin chào, <?php echo htmlspecialchars($name_logged_in); ?>!</a>
+                    <a href="./../src/src_phu/profile.php" class="text-white">
+    Xin chào, <?php echo htmlspecialchars($name_logged_in ?? 'Khách'); ?>!
+</a>
                     <a href="./../src/src_phu/logout.php">
                         <button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng xuất</button>
                     </a>
@@ -130,8 +132,7 @@ $name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đ
 </section>
 
 <section class="list mt-10">
-    <div class="container">
-        <!-- Thanh tìm kiếm và bộ lọc thương hiệu -->
+    <div class="container" style="padding: 0 100px;">
         <div class="flex justify-between items-center mb-4">
             <!-- Thanh tìm kiếm -->
             
@@ -209,7 +210,7 @@ $name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đ
 </section>
 
         <section class="list_another mt-20">
-            <div class="container">
+            <div class="container" style="padding: 0 100px;">
                 <div class="banner">
                     <img src="/img/banner_2.webp" alt="">
                 </div>
@@ -351,7 +352,7 @@ $name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đ
         </section>
 
         <section class="map mt-10">
-            <div class="container ">
+            <div class="container " style="padding: 0 100px;">
 
 <div class="title text-center text-xl font-bold text-red-400 mb-4 md:text-4xl">
     <p>Hãy liên hệ với chúng tôi</p>
@@ -520,7 +521,7 @@ $name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đ
 </footer>
 
 <div id="cart" class="fixed bottom-5 right-5 bg-white border border-gray-300 p-4 rounded-lg shadow-lg flex flex-col items-center justify-center">
-    <a href="/gio_hang.php">
+    <a href="/src/src_phu/cart.php">
         <button class="flex items-center justify-center w-16 h-16 bg-red-400 text-white rounded-full hover:bg-red-500 transition-all duration-300 shadow-lg focus:outline-none">
             <!-- Icon giỏ hàng -->
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

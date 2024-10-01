@@ -15,8 +15,8 @@ nav#header {
   top: 0; /* Đặt ở trên cùng */
   left: 0;
   right: 0;
-  
-    z-index: 1000; /* Đảm bảo header nằm trên cùng */
+
+  z-index: 1000; /* Đảm bảo header nằm trên cùng */
 }
 
 /* Thêm khoảng cách trên cho phần nội dung chính */
@@ -24,19 +24,11 @@ main {
   margin-top: 10px; /* Khoảng cách bằng chiều cao của header */
 }
 
-
 .container {
-  margin: 0 auto;
+  padding: 0 100px;
 }
 
 .carousel {
-}
-
-.adidas_1:hover {
-  content: url("/img/adidas1_1.webp");
-}
-.nike_1:hover {
-  content: url("/img/nike1_1.webp");
 }
 
 /* Mua ngay */
@@ -47,7 +39,7 @@ main {
   align-items: flex-start;
 }
 
-.detail_product  .img {
+.detail_product .img {
   width: 45%; /* Set width to 45% for smaller images */
 }
 
@@ -86,25 +78,23 @@ main {
   margin-top: 20px; /* Add spacing for size section */
 }
 
-.detail_product .size label{
- 
+.detail_product .size label {
 }
 
-
-  @media screen and (max-width: 768px){
-    .detail_product .content{
-      align-items: center;
+@media screen and (max-width: 768px) {
+  .detail_product .content {
+    align-items: center;
   }
-  .detail_product .size label{
+  .detail_product .size label {
     width: 90px;
   }
-  .detail_product .btn_list{
+  .detail_product .btn_list {
     display: flex;
     flex-direction: column;
   }
 }
 @media screen and (min-width: 768px) and (max-width: 9999px) {
-  .detail_product .size label{
+  .detail_product .size label {
     width: 120px;
   }
 }
