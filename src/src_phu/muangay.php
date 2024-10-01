@@ -166,7 +166,7 @@ try {
 
 <div class="color grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-20">
     <?php
-    $colors = ['Red', 'Blue', 'Green', 'Black', 'Brown'];
+    $colors = ['Red', 'Blue', 'White', 'Black', 'Brown'];
     foreach ($colors as $color) {
         $disabled = in_array($color, $availableColors) ? '' : 'disabled';
         $classDisabled = $disabled ? 'bg-gray-200 cursor-not-allowed' : 'hover:bg-gray-100';
@@ -198,32 +198,34 @@ try {
     </div>
 </div>
 
-                    <div class="btn-list flex flex-col justify-center md:flex-row ">
-                    <div class="btn_buynow mt-5">
-    <a href="#" 
-       class="relative inline-flex items-center justify-center p-1.5 mb-2 me-2 overflow-hidden text-lg font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 w-full lg:w-auto" 
-       onclick="updateBuyNowLink();">
-        Mua ngay
-    </a>
-</div>
+<div id="error-message" class="text-red-500 mt-2 hidden"></div>
+<div id="message" class="mt-2"></div> <!-- Message display here -->
 
-<div class="btn_cart mt-5">
+
+<div class="btn-list flex flex-col md:flex-row justify-center items-center space-x-4 mt-5">
+    <!-- Mua ngay button -->
+    <div class="btn_buynow">
+    <button
+        class="relative inline-flex items-center justify-center w-full md:w-auto px-6 py-3 mb-2 text-lg font-medium text-white bg-gradient-to-br from-pink-500 to-orange-400 rounded-lg shadow-md hover:from-pink-600 hover:to-orange-500 focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 transition duration-200 ease-in-out" onclick="updateBuyNowLink();">
+        Mua ngay
+    </button>
+    </div>
+    <!-- Thêm vào giỏ hàng button -->
     <form id="addToCartForm" method="POST" action="addtocart.php">
         <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
         <input type="hidden" name="size" id="selectedSize" value="">
         <input type="hidden" name="color" id="selectedColor" value="">
         <input type="hidden" name="quantity" id="selectedQuantity" value="1">
 
-        <button type="submit" class="relative inline-flex items-center justify-center p-1.5 mb-2 me-2 overflow-hidden text-lg font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 w-full lg:w-auto">
-            <span class="relative px-10 py-4 transition-all ease-in duration-75 dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                Thêm vào giỏ hàng
-            </span>
+        <button type="submit"
+            class="relative inline-flex items-center justify-center w-full md:w-auto px-6 py-3 mb-2 text-lg font-medium text-white bg-gradient-to-br from-green-500 to-teal-400 rounded-lg shadow-md hover:from-green-600 hover:to-teal-500 focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800 transition duration-200 ease-in-out">
+            Thêm vào giỏ hàng
         </button>
+
     </form>
 </div>
 
 
-                    </div>
                 </div>
             </div>
         </div>
@@ -388,77 +390,6 @@ try {
     }
 </script>
 
-<script>
-$(document).ready(function() {
-  $('.btn-number').click(function(e) {
-    e.preventDefault();
-    var fieldName = $(this).attr('data-field');
-    var type = $(this).attr('data-type');
-    var input = $("input[name='" + fieldName + "']");
-    var currentVal = parseInt(input.val());
-    
-    if (!isNaN(currentVal)) {
-      if (type == 'minus') {
-        var minValue = parseInt(input.attr('min')) || 1;
-        if (currentVal > minValue) {
-          input.val(currentVal - 1).change();
-        }
-        if (parseInt(input.val()) == minValue) {
-          $(this).attr('disabled', true);
-        }
-      } else if (type == 'plus') {
-        var maxValue = parseInt(input.attr('max')) || 9999999999999;
-        if (currentVal < maxValue) {
-          input.val(currentVal + 1).change();
-        }
-        if (parseInt(input.val()) == maxValue) {
-          $(this).attr('disabled', true);
-        }
-      }
-    } else {
-      input.val(0);
-    }
-  });
-  
-  $('.input-number').focusin(function() {
-    $(this).data('oldValue', $(this).val());
-  });
-  
-  $('.input-number').change(function() {
-    var minValue = parseInt($(this).attr('min')) || 1;
-    var maxValue = parseInt($(this).attr('max')) || 9999999999999;
-    var valueCurrent = parseInt($(this).val());
-    var name = $(this).attr('name');
-    
-    if (valueCurrent >= minValue) {
-      $(".btn-number[data-type='minus'][data-field='" + name + "']").removeAttr('disabled');
-    } else {
-      alert('Sorry, the minimum value was reached');
-      $(this).val($(this).data('oldValue'));
-    }
-    
-    if (valueCurrent <= maxValue) {
-      $(".btn-number[data-type='plus'][data-field='" + name + "']").removeAttr('disabled');
-    } else {
-      alert('Sorry, the maximum value was reached');
-      $(this).val($(this).data('oldValue'));
-    }
-  });
-  
-  $(".input-number").keydown(function(e) {
-    // Allow: backspace, delete, tab, escape, enter and .
-    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 190]) !== -1 || 
-        (e.keyCode == 65 && e.ctrlKey === true) || 
-        (e.keyCode >= 35 && e.keyCode <= 39)) {
-      return;
-    }
-    // Ensure that it is a number and stop the keypress
-    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-      e.preventDefault();
-    }
-  });
-});
-</script>
 
 <script>
     window.onscroll = function() {
@@ -540,14 +471,54 @@ document.querySelector('.input-number').addEventListener('input', function() {
     document.querySelector('#selectedQuantity').value = this.value;
 });
 
-// Cập nhật liên kết "Mua ngay"
-function updateBuyNowLink() {
-    const quantity = document.querySelector('.input-number').value || 1; // Lấy số lượng từ input
-    const link = `./buynow.php?product_id=<?php echo $product_id; ?>&size=${selectedSize}&color=${selectedColor}&quantity=${quantity}`;
-    document.querySelector('.btn_buynow a').setAttribute('href', link);
+function showError(message) {
+    const errorMessageElement = document.getElementById('error-message');
+    errorMessageElement.textContent = message;
+    errorMessageElement.classList.remove('hidden'); // Show the error message
 }
 
+function hideError() {
+    const errorMessageElement = document.getElementById('error-message');
+    errorMessageElement.textContent = '';
+    errorMessageElement.classList.add('hidden'); // Hide the error message
+}
 
+// Cập nhật liên kết "Mua ngay"
+function updateBuyNowLink() {
+    if (!selectedSize || !selectedColor) {
+        showError('Vui lòng chọn size và màu trước khi mua.'); // Show error if not selected
+        return; // Exit the function if validation fails
+    }
+    hideError(); // Hide error if everything is fine
+    const quantity = document.querySelector('.input-number').value || 1; // Get quantity from input
+    const link = `./buynow.php?product_id=<?php echo $product_id; ?>&size=${selectedSize}&color=${selectedColor}&quantity=${quantity}`;
+    window.location.href = link; // Redirect to the constructed link
+}
+
+// Update add to cart form submission
+document.getElementById('addToCartForm').addEventListener('submit', function(event) {
+    if (!selectedSize || !selectedColor) {
+        event.preventDefault(); // Prevent form submission
+        showError('Vui lòng chọn size và màu trước khi thêm vào giỏ hàng.'); // Show error
+    } else {
+        hideError(); // Hide error if everything is fine
+        event.preventDefault(); // Prevent normal submission for AJAX
+
+        const formData = new FormData(this); // Get form data
+
+        fetch('addtocart.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('message').innerHTML = data; // Display the server response
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+});
 document.addEventListener('DOMContentLoaded', function() {
     const quantityInput = document.getElementById('quantityInput');
     const hiddenQuantityField = document.getElementById('selectedQuantity');
