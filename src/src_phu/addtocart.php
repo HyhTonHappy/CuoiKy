@@ -3,10 +3,9 @@ session_start();
 
 // Kiểm tra nếu người dùng đã đăng nhập
 if (!isset($_SESSION['username'])) {
-    header("Location: /./src/src_phu/sign_in.php"); // Chuyển hướng đến trang đăng nhập
+    header("Location: sign_in.php"); // Chuyển hướng đến trang đăng nhập
     exit;
 }
-
 if (isset($_SESSION['success_message'])) {
     echo '<div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">'
        . htmlspecialchars($_SESSION['success_message']) . 

@@ -152,60 +152,76 @@ $name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đ
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <?php
-            // Truy vấn SQL để lấy dữ liệu sản phẩm
-            $sql = "SELECT product_id, name_product, price, img1, status, description, brand_id FROM product"; // Đảm bảo có trường 'brand'
-            $stmt = $conn->prepare($sql);
-            $stmt->execute();
-            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    <?php
+    
+    // Kiểm tra xem người dùng đã đăng nhập hay chưa
+    $isLoggedIn = isset($_SESSION['username']); // Giả định bạn lưu trữ username trong session
 
-            if ($products) {
-                foreach ($products as $product) {
-                    $product_id = $product['product_id'];
-                    $name_product = $product['name_product'];
-                    $price = $product['price'];
-                    $img1 = $product['img1']; // Chỉ sử dụng img1
-                    $status = $product['status'];
-                    $description = $product['description'];
-                    $brand_id = isset($product['brand_id']) ? $product['brand_id'] : ''; // Lấy thương hiệu sản phẩm
-            
-                    // Tạo đường dẫn hình ảnh
-                    $image_path = './../../../../../img/' . htmlspecialchars($img1);
-            
-                    // Hiển thị sản phẩm
-                    echo '
-                    <div class="border border-inherit product" data-brand="' . htmlspecialchars($brand_id) . '">
-                        <img class="h-auto max-w-full rounded-lg transition-all duration-500 transform hover:scale-105" 
-                             src="' . $image_path . '" 
-                             alt="">
-                        <div class="content pl-5">
-                            <p class="mt-1 font-bold">' . htmlspecialchars($name_product) . '</p>
-                            <p class="mt-1">' . number_format($price) . ' VND</p>';
-            
-                    // Kiểm tra trạng thái đăng nhập và hiển thị nút tương ứng
-                    echo '
-                        <div class="flex justify-between mt-5">
-                            <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                <a href="./src_phu/muangay.php?product_id=' . $product_id . '"> 
-                                    <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">Mua ngay</span>
-                                </a>
-                            </button>
-                            <button class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-                                <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">Thêm vào giỏ hàng</span>
-                            </button>
-                        </div>';
-            
-                    echo '</div></div>';
-                }
+    // Truy vấn SQL để lấy dữ liệu sản phẩm
+    $sql = "SELECT product_id, name_product, price, img1, status, description, brand_id FROM product";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($products) {
+        foreach ($products as $product) {
+            $product_id = $product['product_id'];
+            $name_product = $product['name_product'];
+            $price = $product['price'];
+            $img1 = $product['img1'];
+            $status = $product['status'];
+            $description = $product['description'];
+            $brand_id = isset($product['brand_id']) ? $product['brand_id'] : ''; 
+        
+            // Tạo đường dẫn hình ảnh
+            $image_path = '/img/' . htmlspecialchars($img1);
+        
+            // Hiển thị sản phẩm
+            echo '
+            <div class="border border-inherit product" data-brand="' . htmlspecialchars($brand_id) . '">
+                <img class="h-auto max-w-full rounded-lg transition-all duration-500 transform hover:scale-105" 
+                     src="' . $image_path . '" 
+                     alt="Hình ảnh sản phẩm">
+                <div class="content pl-5">
+                    <p class="mt-1 font-bold">' . htmlspecialchars($name_product) . '</p>
+                    <p class="mt-1">' . number_format($price) . ' VND</p>';
+        
+            // Kiểm tra trạng thái đăng nhập và hiển thị nút tương ứng
+            echo '
+                <div class="flex justify-between mt-5">';
+                
+            if ($isLoggedIn) {
+                // Người dùng đã đăng nhập, chuyển đến trang mua ngay
+                echo '
+                    <a href="./src_phu/muangay.php?product_id=' . htmlspecialchars($product_id) . '" class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
+                        <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">Mua ngay</span>
+                    </a>';
             } else {
-                echo "Không có sản phẩm nào.";
+                // Người dùng chưa đăng nhập, chuyển đến trang đăng nhập
+                echo '
+                    <a href="./src_phu/sign_in.php" class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
+                        <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">Mua ngay</span>
+                    </a>';
             }
-            
 
-            // Đóng kết nối PDO
-            $conn = null;
-            ?>
-        </div>
+            // Nút Thêm vào giỏ hàng (cho cả đã đăng nhập và chưa đăng nhập)
+            echo '
+                <a href="./src_phu/add_to_cart.php?product_id=' . htmlspecialchars($product_id) . '" class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
+                    <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">Thêm vào giỏ hàng</span>
+                </a>
+                </div>';
+        
+            echo '</div></div>';
+        }
+    } else {
+        echo "<p>Không có sản phẩm nào.</p>";
+    }
+
+    // Đóng kết nối PDO
+    $conn = null;
+    ?>
+</div>
+
     </div>
 </section>
 

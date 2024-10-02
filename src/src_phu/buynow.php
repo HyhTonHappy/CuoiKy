@@ -49,6 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "Lỗi: " . $stmt->errorInfo();
     }
 }
+
 ?>
 
 
@@ -62,105 +63,151 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Thông tin đặt hàng</title>
 </head>
 <body>
-    <section class="bg-gray-50 dark:bg-gray-900">
-        <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 grid lg:grid-cols-2 gap-8 lg:gap-16">
-            
-            <!-- Cột trái: Thông tin sản phẩm -->
-            <?php
-            // Kiểm tra xem các biến đã được khởi tạo chưa
-            $productName = isset($product['name_product']) ? htmlspecialchars($product['name_product']) : 'Không có tên sản phẩm';
-            $productPrice = isset($product['price']) ? number_format($product['price']) . ' VND' : '0 VND';
-            $productImg = isset($product['img1']) ? htmlspecialchars($product['img1']) : 'default-image.jpg'; // Hình ảnh mặc định
+<section class="bg-gray-50 dark:bg-gray-900">
+    <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 grid lg:grid-cols-2 gap-8 lg:gap-16">
+        
+        <!-- Cột trái: Thông tin sản phẩm -->
+        <?php
+        // Kiểm tra xem các biến đã được khởi tạo chưa
+        $productName = isset($product['name_product']) ? htmlspecialchars($product['name_product']) : 'Không có tên sản phẩm';
+        $productPrice = isset($product['price']) ? number_format($product['price']) . ' VND' : '0 VND';
+        $productImg = isset($product['img1']) ? htmlspecialchars($product['img1']) : 'default-image.jpg'; // Hình ảnh mặc định
 
-            $size = isset($size) ? htmlspecialchars($size) : 'Chưa chọn kích thước';
-            $color = isset($color) ? htmlspecialchars($color) : 'Chưa chọn màu sắc';
-            $quantity = isset($quantity) ? htmlspecialchars($quantity) : '0';
+        $size = isset($size) ? htmlspecialchars($size) : 'Chưa chọn kích thước';
+        $color = isset($color) ? htmlspecialchars($color) : 'Chưa chọn màu sắc';
+        $quantity = isset($quantity) ? htmlspecialchars($quantity) : '0';
 
-            // Tính tổng tiền nếu đã có giá và số lượng
-            $total = isset($product['price']) && isset($quantity) ? number_format($quantity * $product['price']) . ' VND' : '0 VND';
-            ?>
+        // Tính tổng tiền nếu đã có giá và số lượng
+        $total = isset($product['price']) && isset($quantity) ? number_format($quantity * $product['price']) . ' VND' : '0 VND';
+        $total_price = isset($quantity) && isset($product['price']) ? $quantity * $product['price'] : 0; // Giá trị tổng tiền
+        ?>
 
-            <div class="flex flex-col justify-center">
-                <h1 class="mb-4 text-2xl font-bold tracking-tight leading-none text-gray-900 md:text-2xl lg:text-2xl dark:text-white">Thông tin sản phẩm</h1>
-                <div class="bg-white p-6 rounded-lg shadow-xl dark:bg-gray-800">
-                    <div class="mb-4">
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">Tên sản phẩm: </p>
-                        <p class="text-gray-700 dark:text-gray-400"><?php echo $productName; ?></p>
-                    </div>
-                    <div class="mb-4">
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">Giá: </p>
-                        <p class="text-gray-700 dark:text-gray-400"><?php echo $productPrice; ?></p>
-                    </div>
-                    <div class="mb-4">
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">Kích thước: </p>
-                        <p class="text-gray-700 dark:text-gray-400"><?php echo $size; ?></p>
-                    </div>
-                    <div class="mb-4">
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">Màu sắc: </p>
-                        <p class="text-gray-700 dark:text-gray-400"><?php echo $color; ?></p>
-                    </div>
-                    <div class="mb-4">
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">Số lượng: </p>
-                        <p class="text-gray-700 dark:text-gray-400"><?php echo $quantity; ?></p>
-                    </div>
-                    <div class="mb-4">
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">Tổng tiền: </p>
-                        <p class="text-gray-700 dark:text-gray-400"><?php echo $total; ?></p>
-                    </div>
-                    <div class="mb-4">
-                        <p class="text-lg font-bold text-gray-900 dark:text-white">Hình ảnh </p>
-                        <img src="./../../img/<?php echo $productImg; ?>" alt="">
-                    </div>
+        <div class="flex flex-col justify-center">
+            <h1 class="mb-4 text-2xl font-bold tracking-tight leading-none text-gray-900 md:text-2xl lg:text-2xl dark:text-white">Thông tin sản phẩm</h1>
+            <div class="bg-white p-6 rounded-lg shadow-xl dark:bg-gray-800">
+                <div class="mb-4">
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">Tên sản phẩm: </p>
+                    <p class="text-gray-700 dark:text-gray-400"><?php echo $productName; ?></p>
                 </div>
-            </div>
-
-            <!-- Cột phải: Thông tin khách hàng -->
-            <div>
-                <div class="w-full lg:max-w-xl p-6 space-y-8 sm:p-8 bg-white rounded-lg shadow-xl dark:bg-gray-800">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Thông tin khách hàng</h2>
-                    <form class="space-y-4" method="POST" action="process_order.php"> <!-- Bạn có thể thay đổi action nếu cần -->
-                        <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
-                        <input type="hidden" name="size" value="<?php echo $size; ?>">
-                        <input type="hidden" name="color" value="<?php echo $color; ?>">
-                        <input type="hidden" name="quantity" value="<?php echo $quantity; ?>">
-                        <input type="hidden" name="price" value="<?php echo $product['price']; ?>">
-
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-900 dark:text-white">Tên của bạn</label>
-                            <input type="text" id="name" name="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Tên của bạn" required />
-                        </div>
-                        
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-900 dark:text-white">Email</label>
-                            <input type="email" id="email" name="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Email" required />
-                        </div>
-                        
-                        <div>
-                            <label for="address" class="block text-sm font-medium text-gray-900 dark:text-white">Địa chỉ</label>
-                            <input type="text" id="address" name="address" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Địa chỉ của bạn" required />
-                        </div>
-                        
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-900 dark:text-white">Số điện thoại</label>
-                            <input type="tel" id="phone" name="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Số điện thoại của bạn" required />
-                        </div>
-
-                        <div>
-                            <label for="birthday" class="block text-sm font-medium text-gray-900 dark:text-white">Ngày sinh</label>
-                            <input type="date" id="birthday" name="birthday" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required />
-                        </div>
-                        
-                        <div>
-                            <label for="voucher_code" class="block text-sm font-medium text-gray-900 dark:text-white">Mã voucher</label>
-                            <input type="text" id="voucher_code" name="voucher_code" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Mã voucher" />
-                        </div>
-                        
-                        <button type="submit" name="submit" class="w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300">Đặt hàng</button>
-                    </form>
+                <div class="mb-4">
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">Giá: </p>
+                    <p class="text-gray-700 dark:text-gray-400"><?php echo $productPrice; ?></p>
+                </div>
+                <div class="mb-4">
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">Kích thước: </p>
+                    <p class="text-gray-700 dark:text-gray-400"><?php echo $size; ?></p>
+                </div>
+                <div class="mb-4">
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">Màu sắc: </p>
+                    <p class="text-gray-700 dark:text-gray-400"><?php echo $color; ?></p>
+                </div>
+                <div class="mb-4">
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">Số lượng: </p>
+                    <p class="text-gray-700 dark:text-gray-400"><?php echo $quantity; ?></p>
+                </div>
+                <div class="mb-4">
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">Tổng tiền: </p>
+                    <p class="text-gray-700 dark:text-gray-400"><?php echo $total; ?></p>
+                </div>
+                <div class="mb-4">
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">Hình ảnh </p>
+                    <img src="./../../img/<?php echo $productImg; ?>" alt="">
                 </div>
             </div>
         </div>
-    </section>
+
+        <!-- Cột phải: Thông tin khách hàng -->
+        <div>
+            <div class="w-full lg:max-w-xl p-6 space-y-8 sm:p-8 bg-white rounded-lg shadow-xl dark:bg-gray-800">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Thông tin khách hàng</h2>
+                <form class="space-y-4" method="POST" action="process_order.php">
+                    <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
+                    <input type="hidden" name="size" value="<?php echo $size; ?>">
+                    <input type="hidden" name="color" value="<?php echo $color; ?>">
+                    <input type="hidden" name="quantity" value="<?php echo $quantity; ?>">
+                    <input type="hidden" name="price" value="<?php echo $product['price']; ?>">
+
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-900 dark:text-white">Tên của bạn</label>
+                        <input type="text" id="name" name="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Tên của bạn" required />
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                        <input type="email" id="email" name="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Email" required />
+                    </div>
+                    
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-900 dark:text-white">Địa chỉ</label>
+                        <input type="text" id="address" name="address" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Địa chỉ của bạn" required />
+                    </div>
+                    
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-900 dark:text-white">Số điện thoại</label>
+                        <input type="tel" id="phone" name="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Số điện thoại của bạn" required />
+                    </div>
+
+                    <div>
+                    <label for="note" class="block text-sm font-medium text-gray-900 dark:text-white">Ghi chú</label>
+                    <textarea id="note" name="note" rows="4" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Ghi chú của bạn"></textarea>
+                    </div>
+
+
+
+                    <div>
+    <label for="payment" class="block text-sm font-medium text-gray-900 dark:text-white">Phương thức thanh toán</label>
+    <select id="payment" name="payment" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        <option value="cash_on_delivery">Trả tiền khi giao hàng</option>
+        <option value="qr_code">Quét mã QR</option>
+        <option value="credit_card">Trả thẻ tín dụng</option>
+    </select>
+</div>
+
+                    <div>
+                        <label for="birthday" class="block text-sm font-medium text-gray-900 dark:text-white">Ngày sinh</label>
+                        <input type="date" id="birthday" name="birthday" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required />
+                    </div>
+                    
+
+                    <div>
+                        <label for="voucher_code" class="block text-sm font-medium text-gray-900 dark:text-white">Mã voucher</label>
+                        <select id="voucher_code" name="voucher_code" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">Chọn mã voucher</option>
+                            <?php
+                            // Lấy ngày hiện tại
+                            $currentDate = date("Y-m-d");
+
+                            // Truy vấn để lấy danh sách mã voucher
+                            $sql_voucher = "SELECT vourcher_id, vourcher_code, day_start, day_end, price_min, price FROM vourcher WHERE status = 1";
+                            $stmt_voucher = $conn->prepare($sql_voucher);
+                            $stmt_voucher->execute();
+                            $vouchers = $stmt_voucher->fetchAll(PDO::FETCH_ASSOC);
+                            
+                            // Hiển thị các voucher trong dropdown
+                            foreach ($vouchers as $voucher) {
+                                // So sánh ngày hiện tại với ngày bắt đầu và ngày kết thúc
+                                if ($currentDate >= $voucher['day_start'] && $currentDate <= $voucher['day_end']) {
+                                    // Kiểm tra xem tổng tiền có đủ điều kiện sử dụng voucher không
+                                    if ($total_price >= $voucher['price_min']) {
+                                        echo '<option value="' . htmlspecialchars($voucher['vourcher_code']) . '">' . htmlspecialchars($voucher['vourcher_code']) . ' (Giảm ' . number_format($voucher['price']) . ' VND)</option>';
+                                    }
+                                }
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <div class="btn_buy" style="margin-top: 40px;">
+                        <button type="submit" name="submit" class="w-full px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring focus:ring-blue-300">Đặt hàng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
 
     <footer class="bg-red-200 dark:bg-gray-900 mt-40">
     <div class="mx-auto w-full max-w-screen-xl">
