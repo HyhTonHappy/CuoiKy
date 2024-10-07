@@ -459,9 +459,24 @@ $name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đ
         <div>
             <h2 class="mb-6 text-sm font-semibold text-red-700 uppercase dark:text-white">Thông tin</h2>
             <ul class="text-red-700 dark:text-gray-400 font-medium">
-                <li class="mb-4">
-                    <a href="#" class="hover:underline">Trạng thái đơn hàng</a>
-                </li>
+                <?php
+            if ($isLoggedIn) {
+                // Người dùng đã đăng nhập, chuyển đến trang mua ngay
+                echo '
+                    <li class="mb-4">
+                    <a href="./../src/src_phu/status_deli.php" class="hover:underline">Trạng thái đơn hàng</a>
+                    </li>
+                    ';
+                    
+            } else {
+                // Người dùng chưa đăng nhập, chuyển đến trang đăng nhập
+                echo '
+                    <li class="mb-4">
+                    <a href="./../src/src_phu/sign_in.php" class="hover:underline">Trạng thái đơn hàng</a>
+                    </li>';
+            }
+            ?>
+                
                 <li class="mb-4">
                     <a href="#" class="hover:underline">Chính sách đổi trả</a>
                 </li>

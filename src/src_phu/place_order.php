@@ -45,22 +45,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($cart_items)) {
 
     // Vòng lặp để chèn từng sản phẩm vào bảng orders
     foreach ($cart_items as $item) {
-        // Lấy tên sản phẩm, kích thước và màu sắc
+        // Lấy thông tin sản phẩm
         $product_id = $item['product_id'];
         $size_id = $item['size_id'];
         $color_id = $item['color_id'];
+        $quantity = $item['quantity'];
+        $price = $item['price'];
 
         // Lấy size từ bảng sizes
         $sql_size = "SELECT size FROM sizes WHERE size_id = ?";
         $stmt_size = $conn->prepare($sql_size);
         $stmt_size->execute([$size_id]);
-        $size = $stmt_size->fetchColumn(); // Lấy tên size
+        $size = $stmt_size->fetchColumn();
 
         // Lấy color từ bảng colors
         $sql_color = "SELECT color FROM colors WHERE color_id = ?";
         $stmt_color = $conn->prepare($sql_color);
         $stmt_color->execute([$color_id]);
-        $color = $stmt_color->fetchColumn(); // Lấy tên color
+        $color = $stmt_color->fetchColumn();
 
         // Tính tổng tiền cho sản phẩm
         $total_price = $item['price'];
@@ -71,21 +73,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($cart_items)) {
         
         $stmt = $conn->prepare($sql);
         if (!$stmt->execute([$new_order_id, $username, $total_price, $note, $name, $email, $phone, "0", 0, $payment, $address, $item['name_product'], $color, $size, $item['quantity']])) {
-            // Nếu lỗi là vì trùng lặp, tăng order_id lên và thử lại
-            if ($stmt->errorInfo()[1] === 1062) {
-                $new_order_id++; // Tăng lên 1 và thử lại
-                // Retry with the new order_id
-                if (!$stmt->execute([$new_order_id, $username, $total_price, $note, $name, $email, $phone, "0", 0, $payment, $address, $item['name_product'], $color, $size, $item['quantity']])) {
-                    echo "Lỗi khi thêm đơn hàng: " . $stmt->errorInfo()[2];
-                    exit;
-                }
-            } else {
-                echo "Lỗi khi thêm đơn hàng: " . $stmt->errorInfo()[2];
-                exit;
-            }
+            echo "Lỗi khi thêm đơn hàng: " . $stmt->errorInfo()[2];
+            exit;
         }
-        // Tăng order_id lên cho sản phẩm tiếp theo
-        $new_order_id++; // Tăng lên 1 cho đơn hàng tiếp theo
+
+        // Chèn dữ liệu vào bảng orderdetails
+        $sql_orderdetails = "INSERT INTO orderdetails (detail_id, order_id, product_id, quantity, price, size_id, color_id, status)
+                             VALUES (NULL, ?, ?, ?, ?, ?, ?, 'Processing')";
+
+        $stmt_orderdetails = $conn->prepare($sql_orderdetails);
+        if (!$stmt_orderdetails->execute([$new_order_id, $product_id, $quantity, $price, $size_id, $color_id])) {
+            echo "Lỗi khi thêm chi tiết đơn hàng: " . $stmt_orderdetails->errorInfo()[2];
+            exit;
+        }
     }
 
     // Xóa tất cả sản phẩm trong giỏ hàng sau khi đặt hàng thành công

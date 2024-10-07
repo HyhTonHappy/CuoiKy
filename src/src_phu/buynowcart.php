@@ -1,56 +1,44 @@
 <?php
+// Bắt đầu session
 session_start();
+
+// Kết nối đến cơ sở dữ liệu bằng PDO
 try {
-    $conn = new PDO("mysql:host=localhost;dbname=cuoiky", "root", password: "");
+    $conn = new PDO("mysql:host=localhost;dbname=cuoiky", "root", "");
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Connection failed: " . $e->getMessage());
 }
+
+// Kiểm tra xem biến session 'username' đã tồn tại chưa
+if (!isset($_SESSION['username'])) {
+    // Nếu chưa đăng nhập, chuyển hướng về trang đăng nhập hoặc hiển thị thông báo lỗi
+    header("Location: login.php");
+    exit();
+}
 $is_logged_in = isset($_SESSION['name']); // Kiểm tra name trong session
 $name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đã đăng nhập
-// Khởi tạo các biến
-$product = [];
-$size = $color = $quantity = "";
 
-// Kiểm tra phương thức GET
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['product_id'])) {
-    $product_id = (int)$_GET['product_id']; // Chuyển đổi sang số nguyên
+// Lấy username từ session
+$username = $_SESSION['username'];
 
-    // Lấy thông tin sản phẩm từ cơ sở dữ liệu
-    $stmt = $conn->prepare("SELECT name_product, price, img1 FROM product WHERE product_id = :product_id");
-    $stmt->execute(['product_id' => $product_id]);
-    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+// Lấy danh sách sản phẩm trong giỏ hàng từ cơ sở dữ liệu
+$stmt = $conn->prepare("
+    SELECT p.name_product, p.price, p.img1, s.size, cl.color, c.quantity 
+    FROM carts c
+    INNER JOIN product p ON c.product_id = p.product_id
+    LEFT JOIN sizes s ON c.size_id = s.size_id
+    LEFT JOIN colors cl ON c.color_id = cl.color_id
+    WHERE c.username = :username
+");
+$stmt->execute(['username' => $username]);
+$cartItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Lấy size, color, quantity từ query string
-    $size = isset($_GET['size']) ? htmlspecialchars($_GET['size']) : 'Chưa chọn kích thước';
-    $color = isset($_GET['color']) ? htmlspecialchars($_GET['color']) : 'Chưa chọn màu sắc';
-    $quantity = isset($_GET['quantity']) ? (int)$_GET['quantity'] : 0;
+// Tính tổng tiền của tất cả sản phẩm trong giỏ hàng
+$totalPrice = 0;
+foreach ($cartItems as $item) {
+    $totalPrice += $item['price'] * $item['quantity'];
 }
-
-// Kiểm tra phương thức POST
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Lấy dữ liệu từ biểu mẫu
-    $name = htmlspecialchars(trim($_POST['name']));
-    $email = htmlspecialchars(trim($_POST['email']));
-    $address = htmlspecialchars(trim($_POST['address']));
-    $phone = htmlspecialchars(trim($_POST['phone']));
-    $birthday = htmlspecialchars(trim($_POST['birthday']));
-    $voucher_code = htmlspecialchars(trim($_POST['voucher_code']));
-    $price = (float) $_POST['price']; // Giá từ biểu mẫu
-    $total = $quantity * $price; // Tính tổng tiền
-
-    // Thêm đơn hàng vào cơ sở dữ liệu
-    $sql = "INSERT INTO orders (username, date_create, total, note, status, name, email, phone, voucher_code, payment, address, size, color)
-            VALUES (?, NOW(), ?, '', 'Đã đặt hàng', ?, ?, ?, '', ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    
-    if ($stmt->execute([$name, $total, $product['name_product'], $email, $phone, $voucher_code, $address, $size, $color])) {
-        echo "Đặt hàng thành công!";
-    } else {
-        echo "Lỗi: " . $stmt->errorInfo();
-    }
-}
-
 ?>
 
 
@@ -121,70 +109,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </nav>
 </header>
 
-<section class="bg-gray-50 dark:bg-gray-900 mt-10">
+<section class="bg-gray-50 dark:bg-gray-900">
     <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 grid lg:grid-cols-2 gap-8 lg:gap-16">
         
-        <!-- Cột trái: Thông tin sản phẩm -->
-        <?php
-        // Kiểm tra xem các biến đã được khởi tạo chưa
-        $productName = isset($product['name_product']) ? htmlspecialchars($product['name_product']) : 'Không có tên sản phẩm';
-        $productPrice = isset($product['price']) ? number_format($product['price']) . ' VND' : '0 VND';
-        $productImg = isset($product['img1']) ? htmlspecialchars($product['img1']) : 'default-image.jpg'; // Hình ảnh mặc định
-
-        $size = isset($size) ? htmlspecialchars($size) : 'Chưa chọn kích thước';
-        $color = isset($color) ? htmlspecialchars($color) : 'Chưa chọn màu sắc';
-        $quantity = isset($quantity) ? htmlspecialchars($quantity) : '0';
-
-        // Tính tổng tiền nếu đã có giá và số lượng
-        $total = isset($product['price']) && isset($quantity) ? number_format($quantity * $product['price']) . ' VND' : '0 VND';
-        $total_price = isset($quantity) && isset($product['price']) ? $quantity * $product['price'] : 0; // Giá trị tổng tiền
-        ?>
-
+        <!-- Cột trái: Danh sách sản phẩm trong giỏ hàng -->
         <div class="flex flex-col justify-center">
-            <h1 class="mb-4 text-2xl font-bold tracking-tight leading-none text-gray-900 md:text-2xl lg:text-2xl dark:text-white">Thông tin sản phẩm</h1>
-            <div class="bg-white p-6 rounded-lg shadow-xl dark:bg-gray-800">
-                <div class="mb-4">
-                    <p class="text-lg font-bold text-gray-900 dark:text-white">Tên sản phẩm: </p>
-                    <p class="text-gray-700 dark:text-gray-400"><?php echo $productName; ?></p>
+            <h1 class="mb-4 text-2xl font-bold tracking-tight leading-none text-gray-900 md:text-2xl lg:text-2xl dark:text-white">Sản phẩm trong giỏ hàng</h1>
+            <?php if (count($cartItems) > 0): ?>
+                <div class="bg-white p-6 rounded-lg shadow-xl dark:bg-gray-800">
+                    <?php foreach ($cartItems as $item): 
+                        $totalItemPrice = $item['price'] * $item['quantity'];
+                        $totalPrice += $totalItemPrice;
+                    ?>
+                    <div class="mb-4 border-b pb-4">
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">Tên sản phẩm: <?php echo htmlspecialchars($item['name_product']); ?></p>
+                        <p class="text-gray-700 dark:text-gray-400">Giá: <?php echo number_format($item['price']); ?> VND</p>
+                        <p class="text-gray-700 dark:text-gray-400">Kích thước: <?php echo htmlspecialchars($item['size']); ?></p>
+                        <p class="text-gray-700 dark:text-gray-400">Màu sắc: <?php echo htmlspecialchars($item['color']); ?></p>
+                        <p class="text-gray-700 dark:text-gray-400">Số lượng: <?php echo htmlspecialchars($item['quantity']); ?></p>
+                        <p class="text-gray-700 dark:text-gray-400">Tổng: <?php echo number_format($totalItemPrice); ?> VND</p>
+                        <img src="./../../img/<?php echo htmlspecialchars($item['img1']); ?>" alt="Hình ảnh sản phẩm" style="max-width: 100px;">
+                    </div>
+                    <?php endforeach; ?>
+                    <div class="mt-4">
+                        <p class="text-lg font-bold text-gray-900 dark:text-white">Tổng tiền của giỏ hàng: <?php echo number_format($totalPrice); ?> VND</p>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <p class="text-lg font-bold text-gray-900 dark:text-white">Giá: </p>
-                    <p class="text-gray-700 dark:text-gray-400"><?php echo $productPrice; ?></p>
-                </div>
-                <div class="mb-4">
-                    <p class="text-lg font-bold text-gray-900 dark:text-white">Kích thước: </p>
-                    <p class="text-gray-700 dark:text-gray-400"><?php echo $size; ?></p>
-                </div>
-                <div class="mb-4">
-                    <p class="text-lg font-bold text-gray-900 dark:text-white">Màu sắc: </p>
-                    <p class="text-gray-700 dark:text-gray-400"><?php echo $color; ?></p>
-                </div>
-                <div class="mb-4">
-                    <p class="text-lg font-bold text-gray-900 dark:text-white">Số lượng: </p>
-                    <p class="text-gray-700 dark:text-gray-400"><?php echo $quantity; ?></p>
-                </div>
-                <div class="mb-4">
-                    <p class="text-lg font-bold text-gray-900 dark:text-white">Tổng tiền: </p>
-                    <p class="text-gray-700 dark:text-gray-400"><?php echo $total; ?></p>
-                </div>
-                <div class="mb-4">
-                    <p class="text-lg font-bold text-gray-900 dark:text-white">Hình ảnh </p>
-                    <img src="./../../img/<?php echo $productImg; ?>" alt="">
-                </div>
-            </div>
+            <?php else: ?>
+                <p class="text-gray-700 dark:text-gray-400">Giỏ hàng của bạn đang trống.</p>
+            <?php endif; ?>
         </div>
 
-        <!-- Cột phải: Thông tin khách hàng -->
+        <!-- Cột phải: Thông tin khách hàng và xác nhận đơn hàng -->
         <div>
             <div class="w-full lg:max-w-xl p-6 space-y-8 sm:p-8 bg-white rounded-lg shadow-xl dark:bg-gray-800">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Thông tin khách hàng</h2>
-                <form class="space-y-4" method="POST" action="buynow_.php">
-                    <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
-                    <input type="hidden" name="size" value="<?php echo $size; ?>">
-                    <input type="hidden" name="color" value="<?php echo $color; ?>">
-                    <input type="hidden" name="quantity" value="<?php echo $quantity; ?>">
-                    <input type="hidden" name="price" value="<?php echo $product['price']; ?>">
-
+                <form class="space-y-4" method="POST" action="process_order.php">
+                    <!-- Ẩn các giá trị cần thiết để truyền sang trang xử lý đơn hàng -->
+                    <input type="hidden" name="total_price" value="<?php echo $totalPrice; ?>">
+                    
+                    <!-- Các trường thông tin khách hàng -->
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-900 dark:text-white">Tên của bạn</label>
                         <input type="text" id="name" name="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Tên của bạn" required />
@@ -205,28 +169,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="tel" id="phone" name="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Số điện thoại của bạn" required />
                     </div>
 
+                    <!-- Trường ghi chú -->
                     <div>
-                    <label for="note" class="block text-sm font-medium text-gray-900 dark:text-white">Ghi chú</label>
-                    <textarea id="note" name="note" rows="4" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Ghi chú của bạn"></textarea>
+                        <label for="note" class="block text-sm font-medium text-gray-900 dark:text-white">Ghi chú</label>
+                        <textarea id="note" name="note" rows="4" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Ghi chú của bạn"></textarea>
                     </div>
 
-
-
+                    <!-- Phương thức thanh toán -->
                     <div>
-    <label for="payment" class="block text-sm font-medium text-gray-900 dark:text-white">Phương thức thanh toán</label>
-    <select id="payment" name="payment" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-        <option value="Trả tiền khi giao hàng">Trả tiền khi giao hàng</option>
-        <option value="Quét mã QR">Quét mã QR</option>
-        <option value="Trả thẻ tín dụng">Trả thẻ tín dụng</option>
-    </select>
-</div>
+                        <label for="payment" class="block text-sm font-medium text-gray-900 dark:text-white">Phương thức thanh toán</label>
+                        <select id="payment" name="payment" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="cash_on_delivery">Trả tiền khi giao hàng</option>
+                            <option value="qr_code">Quét mã QR</option>
+                            <option value="credit_card">Trả thẻ tín dụng</option>
+                        </select>
+                    </div>
 
+                    <!-- Ngày sinh -->
                     <div>
                         <label for="birthday" class="block text-sm font-medium text-gray-900 dark:text-white">Ngày sinh</label>
                         <input type="date" id="birthday" name="birthday" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" required />
                     </div>
-                    
 
+                    <!-- Mã voucher -->
                     <div>
                         <label for="voucher_code" class="block text-sm font-medium text-gray-900 dark:text-white">Mã voucher</label>
                         <select id="voucher_code" name="voucher_code" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
@@ -246,7 +211,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 // So sánh ngày hiện tại với ngày bắt đầu và ngày kết thúc
                                 if ($currentDate >= $voucher['day_start'] && $currentDate <= $voucher['day_end']) {
                                     // Kiểm tra xem tổng tiền có đủ điều kiện sử dụng voucher không
-                                    if ($total_price >= $voucher['price_min']) {
+                                    if ($totalPrice >= $voucher['price_min']) {
                                         echo '<option value="' . htmlspecialchars($voucher['vourcher_code']) . '">' . htmlspecialchars($voucher['vourcher_code']) . ' (Giảm ' . number_format($voucher['price']) . ' VND)</option>';
                                     }
                                 }
@@ -255,14 +220,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </select>
                     </div>
 
-                    <div class="btn_buy" style="margin-top: 40px;">
-                        <button type="submit" name="submit" class="w-full px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring focus:ring-blue-300">Đặt hàng</button>
+                    <!-- Nút đặt hàng -->
+                                         <!-- <form > -->
+                    <div class="btn_buy" style="margin-top: 40px;" >
+                        <button method="post" action="place_order.php"   type="submit" name="submit" class="w-full px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring focus:ring-blue-300 dark:focus:ring-blue-800">
+                            Đặt hàng ngay
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </section>
+
 
 
 

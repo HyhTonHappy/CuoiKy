@@ -1,54 +1,24 @@
-
 <?php
 session_start();
 
 $servername = "localhost";
-$username = "root";
-$password = "";
+$username_db = "root";
+$password_db = "";
 $dbname = "cuoiky";
 
 try {
     // Kết nối đến cơ sở dữ liệu
-    $conn = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username, $password);
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8", $username_db, $password_db);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Kết nối thất bại: " . $e->getMessage());
 }
 
 // Kiểm tra trạng thái đăng nhập
-$is_logged_in = isset($_SESSION['name']); // Kiểm tra name trong session
+$is_logged_in = isset($_SESSION['username']); // Kiểm tra username trong session
+$username_logged_in = $is_logged_in ? $_SESSION['username'] : ''; // Lấy username nếu đã đăng nhập
 $name_logged_in = $is_logged_in ? $_SESSION['name'] : ''; // Lấy name nếu đã đăng nhập
 
-// Lấy product_id từ query string
-$product_id = isset($_GET['product_id']) ? intval($_GET['product_id']) : 0;
-
-// Truy vấn thông tin sản phẩm từ cơ sở dữ liệu
-try {
-    $sql = "SELECT * FROM product WHERE product_id = :product_id"; // Sử dụng prepared statement
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
-    $stmt->execute();
-
-    // Truy vấn danh sách size có sẵn
-    $sizesQuery = $conn->prepare("SELECT s.size FROM sizes s JOIN size_product sp ON s.size_id = sp.size_id WHERE sp.product_id = :product_id");
-    $sizesQuery->execute(['product_id' => $product_id]);
-    $availableSizes = $sizesQuery->fetchAll(PDO::FETCH_COLUMN);
-
-    // Truy vấn danh sách color có sẵn
-    $colorsQuery = $conn->prepare("SELECT c.color FROM colors c JOIN color_product cp ON c.color_id = cp.color_id WHERE cp.product_id = :product_id");
-    $colorsQuery->execute(['product_id' => $product_id]);
-    $availableColors = $colorsQuery->fetchAll(PDO::FETCH_COLUMN);
-
-    if ($stmt->rowCount() > 0) {
-        $product = $stmt->fetch(PDO::FETCH_ASSOC);
-    } else {
-        echo "Sản phẩm không tồn tại.";
-        exit; // Thoát nếu sản phẩm không tìm thấy
-    }
-} catch (PDOException $e) {
-    echo "Lỗi truy vấn: " . $e->getMessage();
-    exit; // Thoát nếu có lỗi trong truy vấn
-}
 ?>
 
 <!doctype html>
@@ -59,7 +29,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="./../output.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.css" rel="stylesheet">
-    <title>Bán hàng</title>
+    <title>Trạng thái đơn hàng</title>
 </head>
 
 <body>
@@ -73,8 +43,8 @@ try {
             <div class="flex md:order-2 space-x-3 rtl:space-x-reverse justify-between items-center">
                 <?php if ($is_logged_in): ?>
                     <!-- Hiển thị tên người dùng và nút đăng xuất khi đã đăng nhập -->
-                    <a href="../src_phu/profile.php" class="text-white">Xin chào, <?php echo htmlspecialchars($name_logged_in); ?>!</a>
-                    <a href="../src_phu/logout.php">
+                    <a href="./../src/src_phu/profile.php" class="text-white">Xin chào, <?php echo htmlspecialchars($name_logged_in); ?>!</a>
+                    <a href="./../src/src_phu/logout.php">
                         <button type="button" class="text-red-400 bg-white hover:bg-red-400 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center transition-all duration-500">Đăng xuất</button>
                     </a>
                 <?php else: ?>
@@ -119,128 +89,79 @@ try {
     </nav>
 </header>
 
-    <main>
-    <section class="detail_product" style="padding-top: 70px;">
-        <div class="container">
-            <div class="banner w-full h-auto max-w-full md:object-cover">
-                <img src="/img/banner_2.webp" alt="">
-            </div>
-            <div class="content pt-20 flex flex-col justify-center mt-20 md:flex-row md:justify-around">
-                <div class="img w-1/2 md:w-full">
-                    <div class="grid gap-4">
-                        <div class="main-img">
-                            <img class="h-auto max-w-full rounded-lg cursor-pointer" src="/img/<?php echo htmlspecialchars($product['img1']); ?>" alt="" onclick="openModal(this)">
-                        </div>
-                        <div class="grid grid-cols-4 gap-4">
-                            <div>
-                                <img class="w-full max-w-md md:max-w-none md:w-full cursor-pointer" src="/img/<?php echo htmlspecialchars($product['img2']); ?>" alt="" onclick="openModal(this)">
-                            </div>
-                            <div>
-                                <img class="h-auto max-w-full rounded-lg cursor-pointer" src="/img/<?php echo htmlspecialchars($product['img3']); ?>" alt="" onclick="openModal(this)">
-                            </div>
-                        </div>
+    <main style="margin-top: 100px;">
+    <div class="container mx-auto mt-20">
+        <h1 class="text-2xl font-bold mb-4">Trạng thái đơn hàng của bạn</h1>
+
+        <?php if ($is_logged_in): ?>
+            <?php
+            // Truy vấn để lấy các đơn hàng của người dùng
+            $sql_orders = "SELECT * FROM orders WHERE username = ? ORDER BY date_create DESC";
+            $stmt_orders = $conn->prepare($sql_orders);
+            $stmt_orders->execute([$username_logged_in]);
+            $orders = $stmt_orders->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($orders):
+                foreach ($orders as $order):
+                    $order_id = $order['order_id'];
+                    $date_create = $order['date_create'];
+                    $status = $order['status'];
+                    $total = $order['total'];
+            ?>
+                    <div class="border p-4 mb-4">
+                        <h2 class="text-xl font-semibold">Đơn hàng #<?php echo $order_id; ?> - <?php echo $date_create; ?></h2>
+                        <p>Trạng thái: <?php echo htmlspecialchars($status); ?></p>
+                        <p>Tổng tiền: <?php echo number_format($total); ?> VND</p>
+
+                        <?php
+                        // Truy vấn chi tiết đơn hàng từ bảng orderdetails
+                        $sql_details = "SELECT od.*, p.name_product, s.size, c.color
+                                        FROM orderdetails od
+                                        JOIN product p ON od.product_id = p.product_id
+                                        JOIN sizes s ON od.size_id = s.size_id
+                                        JOIN colors c ON od.color_id = c.color_id
+                                        WHERE od.order_id = ?";
+                        $stmt_details = $conn->prepare($sql_details);
+                        $stmt_details->execute([$order_id]);
+                        $details = $stmt_details->fetchAll(PDO::FETCH_ASSOC);
+                        ?>
+
+                        <table class="w-full mt-4 border">
+                            <thead>
+                                <tr>
+                                    <th class="border px-2 py-1">Sản phẩm</th>
+                                    <th class="border px-2 py-1">Số lượng</th>
+                                    <th class="border px-2 py-1">Giá</th>
+                                    <th class="border px-2 py-1">Size</th>
+                                    <th class="border px-2 py-1">Màu sắc</th>
+                                    <th class="border px-2 py-1">Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($details as $detail): ?>
+                                    <tr>
+                                        <td class="border px-2 py-1"><?php echo htmlspecialchars($detail['name_product']); ?></td>
+                                        <td class="border px-2 py-1"><?php echo $detail['quantity']; ?></td>
+                                        <td class="border px-2 py-1"><?php echo number_format($detail['price']); ?> VND</td>
+                                        <td class="border px-2 py-1"><?php echo htmlspecialchars($detail['size']); ?></td>
+                                        <td class="border px-2 py-1"><?php echo htmlspecialchars($detail['color']); ?></td>
+                                        <td class="border px-2 py-1"><?php echo htmlspecialchars($detail['status']); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-
-                <div class="content_title">
-                    <div class="content_shoe text-left">
-                        <h3 class="font-bold"><?php echo htmlspecialchars($product['name_product']); ?></h3>
-                        <p class="mt-5">Giá: <?php echo number_format($product['price']); ?> VND</p>
-                        <p class="mt-5">Tình trạng: <?php echo htmlspecialchars($product['status']); ?></p>
-                    </div>
-
-                    <h5 class="mt-5">Size</h5>
-                    <div class="size grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-20">
-    <?php
-    $sizes = [39, 40, 41, 42, 43, 44, 45];
-    foreach ($sizes as $size) {
-        $disabled = in_array($size, $availableSizes) ? '' : 'disabled';
-        $classDisabled = $disabled ? 'bg-gray-200 cursor-not-allowed' : 'hover:bg-gray-100';
-
-        echo '<label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer ' . $classDisabled . '" ' . ($disabled ? '' : 'onclick="selectSize(' . $size . ')"') . '>
-        <input type="radio" name="size" value="' . $size . '" class="sr-only" ' . ($disabled ? 'disabled' : '') . '>' . $size . '
-        </label>';
-    }
-    ?>
-</div>
-
-<div class="color grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-20">
-    <?php
-    $colors = ['Red', 'Blue', 'White', 'Black', 'Brown'];
-    foreach ($colors as $color) {
-        $disabled = in_array($color, $availableColors) ? '' : 'disabled';
-        $classDisabled = $disabled ? 'bg-gray-200 cursor-not-allowed' : 'hover:bg-gray-100';
-
-        echo '<label class="block border border-gray-300 rounded-md text-center p-2 cursor-pointer ' . $classDisabled . '" ' . ($disabled ? '' : 'onclick="selectColor(\'' . $color . '\')"') . '>
-        <input type="radio" name="color" value="' . $color . '" class="sr-only" ' . ($disabled ? 'disabled' : '') . '>' . $color . '
-        </label>';
-    }
-    ?>
-</div>
-
-
-
-<div class="quantity_group mt-10">
-    <div class="mx-auto">
-        <div class="flex justify-center space-x-8">
-            <div class="w-64">
-                <div class="flex items-center">
-                    <button type="button" class="btn-number bg-red-400 text-gray-700 px-4 py-2 rounded-l" data-type="minus">
-                        <span class="text-xl">-</span>
-                    </button>
-                    <input id="quantityInput" class="input-number border text-center w-full py-2" value="1" type="number" min="1" max="9999999999999">
-                    <button type="button" class="btn-number bg-red-400 text-gray-700 px-4 py-2 rounded-r" data-type="plus">
-                        <span class="text-xl">+</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+            <?php
+                endforeach;
+            else:
+                echo "<p>Bạn chưa có đơn hàng nào.</p>";
+            endif;
+            ?>
+        <?php else: ?>
+            <p>Bạn cần <a href="sign_in.php" class="text-blue-500">đăng nhập</a> để xem trạng thái đơn hàng.</p>
+        <?php endif; ?>
     </div>
-</div>
-
-<div id="error-message" class="text-red-500 mt-2 hidden"></div>
-<div id="message" class="mt-2"></div> <!-- Message display here -->
-
-
-<div class="btn-list flex flex-col md:flex-row justify-center items-center space-x-4 mt-5">
-    <!-- Mua ngay button -->
-    <div class="btn_buynow">
-    <button
-        class="relative inline-flex items-center justify-center w-full md:w-auto px-6 py-3 mb-2 text-lg font-medium text-white bg-gradient-to-br from-pink-500 to-orange-400 rounded-lg shadow-md hover:from-pink-600 hover:to-orange-500 focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 transition duration-200 ease-in-out" onclick="updateBuyNowLink();">
-        Mua ngay
-    </button>
-    </div>
-    <!-- Thêm vào giỏ hàng button -->
-    <form id="addToCartForm" method="POST" action="addtocart.php">
-        <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
-        <input type="hidden" name="size" id="selectedSize" value="">
-        <input type="hidden" name="color" id="selectedColor" value="">
-        <input type="hidden" name="quantity" id="selectedQuantity" value="1">
-
-        <button type="submit"
-            class="relative inline-flex items-center justify-center w-full md:w-auto px-6 py-3 mb-2 text-lg font-medium text-white bg-gradient-to-br from-green-500 to-teal-400 rounded-lg shadow-md hover:from-green-600 hover:to-teal-500 focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800 transition duration-200 ease-in-out">
-            Thêm vào giỏ hàng
-        </button>
-
-    </form>
-</div>
-
-
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="detail mt-10">
-        <div class="container">
-            <div class="title">
-                <h4 class="font-bold text-xl">Mô tả sản phẩm</h4>
-            </div>
-            <p><?php echo htmlspecialchars($product['description']); ?></p>
-        </div>
-    </section>
-
-    
+</>
         
     </main>
 
@@ -444,115 +365,7 @@ try {
 
 
 
-<script>
-let selectedSize = null;
-let selectedColor = null;
 
-function selectSize(size) {
-    selectedSize = size;
-    document.querySelector('#selectedSize').value = size;  // Cập nhật size vào form
-    document.querySelectorAll('input[name="size"]').forEach(input => {
-        input.parentElement.classList.remove('border-red-400', 'bg-red-400');
-    });
-    event.currentTarget.classList.add('border-red-400', 'bg-red-400');
-}
-
-function selectColor(color) {
-    selectedColor = color;
-    document.querySelector('#selectedColor').value = color;  // Cập nhật color vào form
-    document.querySelectorAll('input[name="color"]').forEach(input => {
-        input.parentElement.classList.remove('border-red-400', 'bg-red-400');
-    });
-    event.currentTarget.classList.add('border-red-400', 'bg-red-400');
-}
-
-// Cập nhật số lượng khi người dùng thay đổi số lượng
-document.querySelector('.input-number').addEventListener('input', function() {
-    document.querySelector('#selectedQuantity').value = this.value;
-});
-
-function showError(message) {
-    const errorMessageElement = document.getElementById('error-message');
-    errorMessageElement.textContent = message;
-    errorMessageElement.classList.remove('hidden'); // Show the error message
-}
-
-function hideError() {
-    const errorMessageElement = document.getElementById('error-message');
-    errorMessageElement.textContent = '';
-    errorMessageElement.classList.add('hidden'); // Hide the error message
-}
-
-// Cập nhật liên kết "Mua ngay"
-function updateBuyNowLink() {
-    if (!selectedSize || !selectedColor) {
-        showError('Vui lòng chọn size và màu trước khi mua.'); // Show error if not selected
-        return; // Exit the function if validation fails
-    }
-    hideError(); // Hide error if everything is fine
-    const quantity = document.querySelector('.input-number').value || 1; // Get quantity from input
-    const link = `./buynow.php?product_id=<?php echo $product_id; ?>&size=${selectedSize}&color=${selectedColor}&quantity=${quantity}`;
-    window.location.href = link; // Redirect to the constructed link
-}
-
-// Update add to cart form submission
-document.getElementById('addToCartForm').addEventListener('submit', function(event) {
-    if (!selectedSize || !selectedColor) {
-        event.preventDefault(); // Prevent form submission
-        showError('Vui lòng chọn size và màu trước khi thêm vào giỏ hàng.'); // Show error
-    } else {
-        hideError(); // Hide error if everything is fine
-        event.preventDefault(); // Prevent normal submission for AJAX
-
-        const formData = new FormData(this); // Get form data
-
-        fetch('addtocart.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('message').innerHTML = data; // Display the server response
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
-});
-document.addEventListener('DOMContentLoaded', function() {
-    const quantityInput = document.getElementById('quantityInput');
-    const hiddenQuantityField = document.getElementById('selectedQuantity');
-
-    // Update hidden quantity field
-    function updateHiddenField() {
-        hiddenQuantityField.value = quantityInput.value || 1; // Ensure it defaults to 1 if empty
-    }
-
-    quantityInput.addEventListener('input', updateHiddenField);
-
-    // Handle button clicks for incrementing and decrementing
-    document.querySelectorAll('.btn-number').forEach(button => {
-        button.addEventListener('click', function() {
-            let currentValue = parseInt(quantityInput.value);
-
-            if (this.getAttribute('data-type') === 'plus') {
-                currentValue++;
-            } else if (this.getAttribute('data-type') === 'minus') {
-                if (currentValue > 1) {
-                    currentValue--;
-                }
-            }
-
-            quantityInput.value = currentValue;
-            updateHiddenField(); // Update the hidden quantity field
-        });
-    });
-
-    // Initialize the hidden field with the starting quantity
-    updateHiddenField();
-});
-document.querySelector('.input-number').addEventListener('input', updateBuyNowLink);
-</script>
 
 
 </body>

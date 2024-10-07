@@ -101,7 +101,7 @@ try {
 </header>
 
 
-<main> 
+<main>
     <section class="carts pt-20">
         <div class="container mx-auto mt-4">
             <div class="">
@@ -131,8 +131,8 @@ try {
                                 <td class="border px-4 py-2"><?php echo htmlspecialchars($item['color']); ?></td>
                                 <td class="border px-4 py-2">
                                     <form method="post" action="update_quantity.php" class="flex items-center">
-                                        <input type="hidden" name="cart_id" value="<?php echo $item['cart_id']; ?>">
-                                        <input type="number" name="quantity" value="<?php echo $item['quantity']; ?>" min="1" class="border border-gray-300 rounded-md p-1 w-16">
+                                        <input type="hidden" name="cart_id" value="<?php echo htmlspecialchars($item['cart_id']); ?>">
+                                        <input type="number" name="quantity" value="<?php echo htmlspecialchars($item['quantity']); ?>" min="1" class="border border-gray-300 rounded-md p-1 w-16">
                                         <button type="submit" class="ml-2 bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600">Cập nhật</button>
                                     </form>
                                 </td>
@@ -140,7 +140,7 @@ try {
                                 <td class="border px-4 py-2"><?php echo number_format(htmlspecialchars($item['price'] * $item['quantity']), 0, ',', '.'); ?> VNĐ</td>
                                 <td class="border px-4 py-2">
                                     <form method="post" action="remove_from_cart.php">
-                                        <input type="hidden" name="cart_id" value="<?php echo $item['cart_id']; ?>">
+                                        <input type="hidden" name="cart_id" value="<?php echo htmlspecialchars($item['cart_id']); ?>">
                                         <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600">Xóa</button>
                                     </form>
                                 </td>
@@ -149,9 +149,9 @@ try {
                     </tbody>
                 </table>
                 <div class="text-right mt-4">
-                    <form method="post" action="place_order.php">
-                        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Đặt hàng</button>
-                    </form>
+                    <a href="./buynowcart.php">
+                        <button type="button" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Đặt hàng</button>
+                    </a>
                 </div>
             <?php endif; ?>
         </div>

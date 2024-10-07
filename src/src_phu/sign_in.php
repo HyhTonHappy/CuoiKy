@@ -24,6 +24,22 @@ if (isset($_POST['submit'])) {
         $username = $_POST['username'];
         $password = $_POST['password'];
 
+        // Kiểm tra xem nếu là tài khoản admin
+        if ($username === '1') {
+            // Mật khẩu đã mã hóa cho tài khoản admin
+            $hashed_admin_password = '$2y$10$nsAd7cG3knsmB5aTJDITJOGev6iCc8iX4BCqtCbW5OZjgk4fZZwZG';
+
+            if (password_verify($password, $hashed_admin_password)) {
+                // Đăng nhập admin thành công
+                $_SESSION['admin_logged_in'] = true;
+                $_SESSION['name'] = 'Admin';
+                header('Location: ./../admin.php');
+                exit(); // Đảm bảo script dừng lại sau khi chuyển hướng
+            } else {
+                $error_message = 'Mật khẩu sai';
+            }
+        }
+
         // Truy vấn để tìm thông tin tài khoản từ bảng taikhoan
         $sql = "SELECT * FROM taikhoan WHERE username = :username";
         $stmt = $conn->prepare($sql);
@@ -71,6 +87,8 @@ if (isset($_POST['submit'])) {
 // Đảm bảo kết nối được đóng
 $conn = null;
 ?>
+
+
 
 
 <!DOCTYPE html>
